@@ -61,6 +61,7 @@ class AssetForm
                         Grid::make(12)->schema([
                             Select::make('room_id')
                                 ->label('Ruangan')
+                                ->helperText('Lokasi penempatan fisik aset, untuk keperluan inventarisasi dan koordinasi perawatan.')
                                 ->relationship('room', 'name')
                                 ->searchable()
                                 ->preload()
@@ -69,13 +70,16 @@ class AssetForm
                                 ->columnSpan(6),
                             Select::make('department_id')
                                 ->label('Departemen / Unit')
+                                ->helperText('Unit atau fakultas pemilik aset')
                                 ->relationship('department', 'name')
+
                                 ->searchable()
                                 ->preload()
                                 ->helperText('Unit atau fakultas pemilik aset')
                                 ->columnSpan(6),
                             Select::make('pic_user_id')
                                 ->label('Penanggung Jawab (PIC)')
+                                ->helperText('Orang yang bertanggung jawab atas aset ini, untuk keperluan koordinasi perawatan dan inventarisasi.')
                                 ->relationship('pic', 'name')
                                 ->searchable()
                                 ->preload()
@@ -83,6 +87,7 @@ class AssetForm
                                 ->columnSpan(6),
                             Select::make('supplier_id')
                                 ->label('Vendor / Supplier')
+                                ->helperText('Penyedia barang, untuk keperluan histori pembelian dan kontak jika perlu klaim garansi')
                                 ->relationship('supplier', 'name')
                                 ->searchable()
                                 ->preload()
@@ -103,6 +108,7 @@ class AssetForm
 
                             DatePicker::make('acquisition_date')
                                 ->label('Tanggal Perolehan')
+                                ->helperText('Tanggal pembelian atau perolehan aset, untuk keperluan akuntansi dan penyusutan.')
                                 ->native(false)
                                 ->minDate(now()->subYears(30))
                                 ->displayFormat('d M Y')
@@ -111,7 +117,8 @@ class AssetForm
                                 ->columnSpan(6),
 
                             TextInput::make('acquisition_value')
-                                ->label('Nilai Perolehan')
+                                ->label('Harga Perolehan')
+                                ->helperText('Harga asli saat pembelian, untuk keperluan akuntansi dan penyusutan.')
                                 ->numeric()
                                 ->required()
                                 ->prefix('Rp')
@@ -126,7 +133,9 @@ class AssetForm
                                 ->numeric()
                                 ->default(5)
                                 ->helperText('Perkiraan masa pakai barang untuk hitungan penyusutan keuangan.')
+                                ->columnSpan(6)
                                 ->required(),
+
                             Select::make('status')
                                 ->label('Status Lifecycle')
                                 ->options(AssetStatusEnum::class)
