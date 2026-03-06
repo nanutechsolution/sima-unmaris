@@ -121,7 +121,12 @@ class AssetForm
                                 ->mask(RawJs::make('$money($input)'))
                                 ->stripCharacters(',')
                                 ->columnSpan(6),
-
+                            TextInput::make('useful_life_years')
+                                ->label('Umur Ekonomis (Tahun)')
+                                ->numeric()
+                                ->default(5)
+                                ->helperText('Perkiraan masa pakai barang untuk hitungan penyusutan keuangan.')
+                                ->required(),
                             Select::make('status')
                                 ->label('Status Lifecycle')
                                 ->options(AssetStatusEnum::class)

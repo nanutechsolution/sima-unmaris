@@ -38,7 +38,6 @@ class Asset extends Model
         'condition' => AssetConditionEnum::class,
     ];
 
-    // --- AUDIT TRAIL CONFIGURATION ---
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -82,5 +81,37 @@ class Asset extends Model
     public function maintenanceLogs(): HasMany
     {
         return $this->hasMany(MaintenanceLog::class)->orderBy('maintenance_date', 'desc');
+    }
+    public function loans()
+    {
+        return $this->hasMany(AssetLoan::class)->orderBy('loan_date', 'desc');
+    }
+
+    public function getCurrentValueAttribute()
+    {
+        // Jika tidak ada harga beli atau tanggal beli, kembalikan harga aslinya/0
+        if (!$this->acquisition_value || !$this->acquisition_date || !$this->useful_life_years) {
+            return $this->acquisition_value ?? 0;
+        }
+
+        // 1. Hitung sudah berapa tahun aset ini dibeli hingga hari ini
+        $yearsPassed = $this->acquisition_date->diffInYears(now());
+
+        // 2. Jika umur aset sudah melewati batas umur ekonomis, nilainya Rp 0 (atau nilai sisa)
+        if ($yearsPassed >= $this->useful_life_years) {
+            return 0;
+        }
+
+        // 3. Hitung penyusutan per tahun (Harga Beli / Umur Ekonomis)
+        $annualDepreciation = $this->acquisition_value / $this->useful_life_years;
+
+        // 4. Hitung total penyusutan yang sudah terjadi
+        $accumulatedDepreciation = $annualDepreciation * $yearsPassed;
+
+        // 5. Nilai Buku Saat Ini = Harga Beli - Total Penyusutan
+        $currentValue = $this->acquisition_value - $accumulatedDepreciation;
+
+        // Pastikan tidak minus
+        return max(0, $currentValue);
     }
 }

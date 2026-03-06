@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Filament\Resources\AssetLoans\Pages;
+
+use App\Filament\Resources\AssetLoans\AssetLoanResource;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Resources\Pages\EditRecord;
+
+class EditAssetLoan extends EditRecord
+{
+    protected static string $resource = AssetLoanResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make(),
+            ForceDeleteAction::make(),
+            RestoreAction::make(),
+        ];
+    }
+}

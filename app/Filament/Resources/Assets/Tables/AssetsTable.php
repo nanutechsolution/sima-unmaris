@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Assets\Tables;
 
 use App\Enums\AssetStatusEnum;
+use App\Filament\Imports\AssetImporter;
 use App\Models\Asset;
 use App\Models\Location;
 use App\Models\User;
@@ -27,6 +28,7 @@ use Illuminate\Support\HtmlString;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\BulkAction;
+use Filament\Actions\ImportAction;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -35,6 +37,17 @@ class AssetsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(AssetImporter::class)
+                    ->label('Import Data (CSV)')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->options([
+                        // Memaksa sistem mengenali pemisah koma atau titik koma di file Excel/CSV
+                        'delimiter' => ',',
+                    ]),
+            ])
             ->columns([
                 TextColumn::make('asset_code')
                     ->label('Kode Aset')
@@ -76,11 +89,20 @@ class AssetsTable
                     ->searchable(),
 
                 TextColumn::make('acquisition_value')
-                    ->label('Nilai Perolehan')
-                    ->money('IDR') // Otomatis format Rupiah
+                    ->label('Harga Beli Asli')
+                    ->money('IDR', locale: 'id')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true), // Disembunyikan secara default agar tabel tidak penuh
-
+                TextColumn::make('current_value')
+                    ->label('Nilai Buku (Saat Ini)')
+                    ->money('IDR', locale: 'id') // Format Rupiah
+                    // Mengambil nilai dari rumus cerdas (Accessor) yang kita buat di Model
+                    ->getStateUsing(fn($record) => $record->current_value)
+                    // Beri warna peringatan jika nilai barang sudah Rp 0 (sudah waktunya diganti/pensiun)
+                    ->color(fn($record) => $record->current_value == 0 ? 'danger' : 'success')
+                    ->weight('bold')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('acquisition_date')
                     ->label('Tgl Perolehan')
                     ->date('d M Y')
@@ -99,7 +121,6 @@ class AssetsTable
             ->recordActions([
                 ActionGroup::make([
                     ActionsEditAction::make(),
-                    // --- 1. ACTION: VIEW QR CODE ---
                     Action::make('generate_qr')
                         ->label('Identitas QR')
                         ->icon('heroicon-o-qr-code')
@@ -193,6 +214,46 @@ class AssetsTable
                             }
                         })
                 ]),
+                Action::make('returnToWarehouse')
+                    ->label('Tarik ke Gudang')
+                    ->icon('heroicon-o-arrow-down-on-square-stack')
+                    ->color('warning')
+                    // Guardrails: Hanya muncul untuk aset yang sedang "Digunakan" (In Use)
+                    ->visible(fn(\App\Models\Asset $record) => in_array(
+                        is_object($record->status) ? $record->status->value : $record->status,
+                        ['in_use']
+                    ))
+                    ->modalHeading('Tarik Aset Kembali ke Gudang')
+                    ->modalDescription('Aset akan ditarik dari Penanggung Jawab saat ini, dikembalikan menjadi "Tersedia", dan ditransfer ke akun Anda (Gudang/Admin).')
+                    ->form([
+                        Select::make('return_condition')
+                            ->label('Kondisi Fisik Saat Dikembalikan')
+                            ->options(\App\Enums\AssetConditionEnum::class)
+                            // Default ke kondisi terakhir yang tercatat di database
+                            ->default(fn(\App\Models\Asset $record) => is_object($record->condition) ? $record->condition->value : $record->condition)
+                            ->required()
+                            ->helperText('Pastikan mengecek fisik barang. Jika dikembalikan dalam keadaan rusak, ubah menjadi "Rusak".'),
+
+                        Textarea::make('return_notes')
+                            ->label('Catatan Penarikan (Opsional)')
+                            ->placeholder('Contoh: Dikembalikan karena dosen bersangkutan pensiun.'),
+                    ])
+                    ->action(function (\App\Models\Asset $record, array $data): void {
+                        // 1. Update Master Aset secara instan
+                        $record->update([
+                            'pic_user_id' => auth()->id(), // Pindahkan kembali ke Admin yang login
+                            'status' => \App\Enums\AssetStatusEnum::AVAILABLE, // Status siap digunakan lagi
+                            'condition' => $data['return_condition'],
+                        ]);
+
+                        // Note: Histori perubahan PIC & Status ini otomatis dicatat oleh Spatie Activitylog!
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Aset Ditarik ke Gudang')
+                            ->body('Aset kini berstatus Tersedia dan menjadi tanggung jawab Anda.')
+                            ->success()
+                            ->send();
+                    }),
 
             ])
             ->toolbarActions([
