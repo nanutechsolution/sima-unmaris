@@ -73,4 +73,14 @@ class Asset extends Model
     {
         return $this->hasMany(AssetHandover::class)->orderBy('handover_time', 'desc');
     }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function maintenanceLogs(): HasMany
+    {
+        return $this->hasMany(MaintenanceLog::class)->orderBy('maintenance_date', 'desc');
+    }
 }

@@ -7,8 +7,10 @@ use App\Enums\AssetStatusEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 
 class AssetForm
 {
@@ -16,77 +18,128 @@ class AssetForm
     {
         return $schema
             ->components([
+
                 Section::make('Informasi Utama')
                     ->description('Identitas dasar aset kampus')
+                    ->icon('heroicon-o-identification')
+                    ->collapsible()
                     ->schema([
-                        TextInput::make('asset_code')
-                            ->label('Kode Aset (Identity)')
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(50)
-                            ->placeholder('Contoh: UNMARIS/IT/2026/001'),
 
-                        TextInput::make('name')
-                            ->label('Nama Aset')
-                            ->required()
-                            ->maxLength(200),
+                        Grid::make(12)->schema([
+                            TextInput::make('asset_code')
+                                ->label('Kode Aset')
+                                ->required()
+                                ->unique(ignoreRecord: true)
+                                ->placeholder('UNMARIS/IT/2026/001')
+                                ->maxLength(50)
+                                ->columnSpan(4),
 
-                        Select::make('category_id')
-                            ->relationship('category', 'name')
-                            ->label('Kategori')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
-                    ])->columns(3),
+                            TextInput::make('name')
+                                ->label('Nama Aset')
+                                ->required()
+                                ->placeholder('Contoh: Laptop Asus ROG')
+                                ->maxLength(200)
+                                ->columnSpan(8),
+
+                            Select::make('category_id')
+                                ->label('Kategori Aset')
+                                ->relationship('category', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->columnSpan(6),
+
+                        ]),
+
+                    ]),
 
                 Section::make('Lokasi & Kepemilikan')
+                    ->description('Lokasi penempatan serta penanggung jawab aset')
+                    ->icon('heroicon-o-map-pin')
+                    ->collapsible()
                     ->schema([
-                        Select::make('room_id')
-                            ->relationship('room', 'name')
-                            ->label('Ruangan / Penempatan')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                        Grid::make(12)->schema([
+                            Select::make('room_id')
+                                ->label('Ruangan')
+                                ->relationship('room', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->placeholder('Pilih ruangan')
+                                ->columnSpan(6),
+                            Select::make('department_id')
+                                ->label('Departemen / Unit')
+                                ->relationship('department', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->helperText('Unit atau fakultas pemilik aset')
+                                ->columnSpan(6),
+                            Select::make('pic_user_id')
+                                ->label('Penanggung Jawab (PIC)')
+                                ->relationship('pic', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->columnSpan(6),
+                            Select::make('supplier_id')
+                                ->label('Vendor / Supplier')
+                                ->relationship('supplier', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->placeholder('Opsional')
+                                ->columnSpan(6),
 
-                        Select::make('pic_user_id')
-                            ->relationship('pic', 'name') // Menggunakan nama relasi di Model Asset
-                            ->label('Penanggung Jawab (PIC)')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                        ]),
 
-                        Select::make('supplier_id')
-                            ->relationship('supplier', 'name')
-                            ->label('Vendor/Supplier (Opsional)')
-                            ->searchable()
-                            ->preload(),
-                    ])->columns(3),
+                    ]),
 
                 Section::make('Finansial & Status')
+                    ->description('Informasi pembelian serta kondisi aset')
+                    ->icon('heroicon-o-banknotes')
+                    ->collapsible()
                     ->schema([
-                        DatePicker::make('acquisition_date')
-                            ->label('Tanggal Perolehan')
-                            ->native(false) // UI Kalender pop-up modern
-                            ->required(),
 
-                        TextInput::make('acquisition_value')
-                            ->label('Nilai Perolehan')
-                            ->required()
-                            ->numeric()
-                            ->prefix('Rp'), // Format Rupiah
+                        Grid::make(12)->schema([
 
-                        Select::make('status')
-                            ->label('Status Lifecycle')
-                            ->options(AssetStatusEnum::class)
-                            ->default(AssetStatusEnum::AVAILABLE)
-                            ->required(),
+                            DatePicker::make('acquisition_date')
+                                ->label('Tanggal Perolehan')
+                                ->native(false)
+                                ->minDate(now()->subYears(30))
+                                ->displayFormat('d M Y')
+                                ->required()
+                                ->maxDate(now())
+                                ->columnSpan(6),
 
-                        Select::make('condition')
-                            ->label('Kondisi Fisik')
-                            ->options(AssetConditionEnum::class)
-                            ->default(AssetConditionEnum::GOOD)
-                            ->required(),
-                    ])->columns(2),
+                            TextInput::make('acquisition_value')
+                                ->label('Nilai Perolehan')
+                                ->numeric()
+                                ->required()
+                                ->prefix('Rp')
+                                ->placeholder('15000000')
+                                ->minValue(0)
+                                ->step(1)
+                                ->mask(RawJs::make('$money($input)'))
+                                ->stripCharacters(',')
+                                ->columnSpan(6),
+
+                            Select::make('status')
+                                ->label('Status Lifecycle')
+                                ->options(AssetStatusEnum::class)
+                                ->default(AssetStatusEnum::AVAILABLE)
+                                ->required()
+                                ->columnSpan(6),
+
+                            Select::make('condition')
+                                ->label('Kondisi Fisik')
+                                ->options(AssetConditionEnum::class)
+                                ->default(AssetConditionEnum::GOOD)
+                                ->required()
+                                ->columnSpan(6),
+
+                        ]),
+
+                    ]),
+
             ]);
     }
 }
