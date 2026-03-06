@@ -20,4 +20,9 @@ class Location extends Model
     {
         return $this->hasMany(Room::class);
     }
+
+    public function assets()
+{
+    return $this->hasManyThrough(Asset::class, Room::class);
+}
 }
