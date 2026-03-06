@@ -72,7 +72,6 @@ class AssetForm
                                 ->label('Departemen / Unit')
                                 ->helperText('Unit atau fakultas pemilik aset')
                                 ->relationship('department', 'name')
-
                                 ->searchable()
                                 ->preload()
                                 ->helperText('Unit atau fakultas pemilik aset')

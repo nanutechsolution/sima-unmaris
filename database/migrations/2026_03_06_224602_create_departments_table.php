@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('code')->unique(); // Contoh: FT, FEB, REKTORAT
             $table->string('name'); // Contoh: Fakultas Teknik
             $table->text('description')->nullable();

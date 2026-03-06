@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('assets', function (Blueprint $table) {
             // Menambahkan kolom departemen di tabel aset
-            $table->foreignId('department_id')->nullable()->after('room_id')->constrained('departments')->nullOnDelete();
+            $table->foreignUuid('department_id')->nullable()->after('room_id')->constrained('departments')->nullOnDelete();
         });
     }
 
