@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    redirect()->route('filament.auth.login');
+    // return view('welcome');
 });
 Route::get('/verify-asset/{signature}', function (string $signature) {
     // Cari aset berdasarkan digital signature yang terenkripsi di QR
@@ -48,7 +49,7 @@ Route::post('/verify-asset/{signature}/report', function (Request $request, stri
         'notes' => 'Dilaporkan oleh: ' . ($request->reporter_name ?: 'Anonim') . ' | IP: ' . $request->ip(),
     ]);
 
-    
+
     // 3. KIRIM NOTIFIKASI REAL-TIME KE ADMIN & STAF
     // Mengambil semua user yang memiliki role Super Admin atau Staf Inventaris
     $admins = User::role(['Super Admin', 'Staf Inventaris'])->get();
