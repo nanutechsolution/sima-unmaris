@@ -21,4 +21,13 @@ class Department extends Model
     {
         return $this->hasMany(Asset::class);
     }
+
+
+    /**
+     * Relasi ke mutasi inventori.
+     */
+    public function inventoryTransactions()
+    {
+        return $this->hasMany(InventoryTransaction::class);
+    }
 }

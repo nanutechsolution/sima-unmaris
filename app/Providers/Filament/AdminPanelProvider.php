@@ -45,6 +45,10 @@ class AdminPanelProvider extends PanelProvider
                     ->icon(Heroicon::OutlinedCube)
                     ->collapsed(),
                 NavigationGroup::make()
+                    ->label(NavigationGroupEnum::INVENTORY_ATK->value)
+                    ->icon(Heroicon::OutlinedArchiveBox)
+                    ->collapsed(),
+                NavigationGroup::make()
                     ->label(NavigationGroupEnum::SYSTEM_AUDIT->value)
                     ->icon(Heroicon::OutlinedShieldCheck)
                     ->collapsed(),
