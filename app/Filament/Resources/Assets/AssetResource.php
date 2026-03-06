@@ -41,6 +41,7 @@ class AssetResource extends Resource
     {
         return [
             RelationManagers\ActivitiesRelationManager::class,
+            RelationManagers\HandoversRelationManager::class,
         ];
     }
 
