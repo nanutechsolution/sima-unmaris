@@ -126,6 +126,7 @@ class AssetForm
                                 ->step(1)
                                 ->mask(RawJs::make('$money($input)'))
                                 ->stripCharacters(',')
+                                ->dehydrateStateUsing(fn($state) => (int) str_replace(',', '', $state))
                                 ->columnSpan(6),
                             TextInput::make('useful_life_years')
                                 ->label('Umur Ekonomis (Tahun)')
