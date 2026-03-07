@@ -11,9 +11,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
-use Ramsey\Collection\Set;
 
 class AssetForm
 {
@@ -36,7 +36,6 @@ class AssetForm
                                 ->required()
                                 ->reactive()
                                 ->afterStateUpdated(function ($state, Set $set) {
-
                                     $category = Category::find($state);
 
                                     if (!$category) {
