@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AssetStatusEnum;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use App\Models\Asset;
@@ -51,7 +52,7 @@ class AssetSeeder extends Seeder
                 'pic_user_id' => $user->id,
                 'acquisition_value' => $asset[1],
                 'acquisition_date' => now()->subDays(rand(10, 300)),
-                'status' => 'Available',
+                'status' =>  AssetStatusEnum::AVAILABLE,
                 'condition' => 'Good',
                 'qr_signature_hash' => hash('sha256', Str::uuid()),
                 'created_at' => now(),
