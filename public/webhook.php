@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 🚀 SIMA-UNMARIS AUTOMATIC DEPLOYMENT WEBHOOK
  * Lokasi: /var/www/siaset/public/webhook.php
@@ -7,8 +8,8 @@
 
 // 1. PENGATURAN KEAMANAN (Mengambil dari .env agar tidak terlihat di kode)
 // Jika di .env belum ada, akan menggunakan default 'sima_unmaris_secret_123'
-$secret = getenv('GITHUB_WEBHOOK_SECRET') ?: 'sima_unmaris_secret_123'; 
-$path   = '/var/www/siaset'; 
+$secret = getenv('GITHUB_WEBHOOK_SECRET') ?: 'sima_unmaris_secret_123';
+$path   = '/var/www/siaset';
 
 // 2. VALIDASI HEADER GITHUB
 $signature = $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '';
