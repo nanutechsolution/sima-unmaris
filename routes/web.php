@@ -60,7 +60,22 @@ Route::post('/verify-asset/{signature}/report', function (Request $request, stri
     return redirect()->route('asset.verify', $signature)
         ->with('success', 'Terima kasih! Laporan kerusakan telah terkirim.');
 })->name('asset.report.submit')->middleware('throttle:3,1'); // Limit 3 hit / menit
-Route::get('/survei/{id}', function ($id) {
+Route::get('/survei/{id}', function (Request $request, $id) {
+    $survey = FacilityFeedback::where('id', $id)
+        ->where('status', 'active')
+        ->firstOrFail();
+
+    // LOGIKA KEAMANAN: Cek apakah IP ini sudah ada di tabel jawaban untuk survei ini
+    $alreadySubmitted = SurveyResponse::where('facility_feedback_id', $id)
+        ->where('ip_address', $request->ip())
+        ->exists();
+
+    return view('frontend.dynamic-survey', [
+        'survey' => $survey,
+        'alreadySubmitted' => $alreadySubmitted // Kirim status ke view
+    ]);
+})->name('survey.show');
+
     // Cari survei berdasarkan ID dan pastikan statusnya 'active'
     $survey = FacilityFeedback::where('id', $id)
         ->where('status', 'active')
@@ -82,10 +97,11 @@ Route::post('/survei/{id}', function (Request $request, $id) {
     ]);
 
     SurveyResponse::create([
-        'facility_feedback_id' => $survey->id,
-        'responder_name' => $request->responder_name ?? 'Anonim',
+        'facility_feedback_id' => $id,
+        'responder_name' => $request->responder_name,
         'responder_type' => $request->responder_type,
         'answers' => $request->answers,
+        'ip_address' => $request->ip(),
     ]);
 
     $admins = User::role(['Super Admin', 'Staf Operasional'])->get();

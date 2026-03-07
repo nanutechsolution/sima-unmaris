@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\FacilityFeedback\RelationManagers;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -12,6 +13,7 @@ use Filament\Tables\Table;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ResponsesRelationManager extends RelationManager
 {
@@ -61,7 +63,77 @@ class ResponsesRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                // Kosongkan: Data masuk melalui portal publik.
+              Action::make('export_responses')
+                    ->label('Ekspor ke Excel (CSV)')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        // 1. Ambil Data Induk (Template Survei)
+                        $survey = $this->getOwnerRecord();
+                        $schema = $survey->form_schema ?? [];
+                        
+                        // 2. Ambil Semua Jawaban yang sudah masuk
+                        $responses = $survey->responses()->latest()->get();
+
+                        if ($responses->isEmpty()) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Gagal Ekspor')
+                                ->body('Belum ada respon yang masuk untuk survei ini.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        // 3. Siapkan Header (Judul Kolom)
+                        $headers = ['Waktu Masuk', 'Nama Responden', 'Tipe Responden'];
+                        foreach ($schema as $index => $field) {
+                            $headers[] = $field['data']['question'] ?? 'Pertanyaan ' . ($index + 1);
+                        }
+
+                        // 4. Proses Pembuatan File CSV (Excel Compatible)
+                        $fileName = 'Hasil_Survei_' . Str::slug($survey->title) . '_' . date('Ymd_His') . '.csv';
+                        
+                        $callback = function() use ($responses, $headers, $schema) {
+                            $file = fopen('php://output', 'w');
+                            
+                            // Tambahkan BOM untuk UTF-8 agar karakter spesial/emoji terbaca benar di Excel
+                            fputs($file, "\xEF\xBB\xBF");
+                            
+                            // Tulis Header
+                            fputcsv($file, $headers);
+
+                            // Tulis Baris Data
+                            foreach ($responses as $row) {
+                                $answers = $row->answers ?? [];
+                                $data = [
+                                    $row->created_at->format('d/m/Y H:i'),
+                                    $row->responder_name ?? 'Anonim',
+                                    $row->responder_type,
+                                ];
+
+                                // Petakan jawaban sesuai urutan pertanyaan di schema
+                                foreach ($schema as $index => $field) {
+                                    $answerKey = 'answer_' . $index;
+                                    $val = $answers[$answerKey] ?? '-';
+                                    
+                                    // Rapikan format jika jawaban berupa array (pilihan ganda)
+                                    if (is_array($val)) {
+                                        $val = implode(', ', $val);
+                                    }
+                                    
+                                    $data[] = $val;
+                                }
+
+                                fputcsv($file, $data);
+                            }
+                            fclose($file);
+                        };
+
+                        return response()->streamDownload($callback, $fileName, [
+                            'Content-Type' => 'text/csv',
+                            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                        ]);
+                    }),
             ])
             ->actions([
                 /**
