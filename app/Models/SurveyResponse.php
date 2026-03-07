@@ -16,6 +16,7 @@ class SurveyResponse extends Model
         'responder_name',
         'responder_type',
         'answers',
+        'ip_address',
     ];
 
     /**
