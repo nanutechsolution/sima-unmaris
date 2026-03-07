@@ -60,8 +60,6 @@ Route::post('/verify-asset/{signature}/report', function (Request $request, stri
         ->icon('heroicon-o-exclamation-triangle')
         ->warning()
         ->sendToDatabase($admins);
-
-
     return redirect()->route('asset.verify', $signature)
         ->with('success', 'Terima kasih! Laporan kerusakan telah terkirim.');
 })->name('asset.report.submit')->middleware('throttle:3,1'); // Limit 3 hit / menit
