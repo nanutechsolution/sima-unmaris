@@ -58,7 +58,6 @@ class SurveyApiController extends Controller
             $baseUrl = rtrim(config('services.siakad.url'), '/');
             $apiKey = config('services.siakad.key');
 
-            dd( $baseUrl, $apiKey);
             $response = Http::timeout(5)->withHeaders([
                 'X-SIMA-KEY' => $apiKey,
                 'Accept' => 'application/json',
