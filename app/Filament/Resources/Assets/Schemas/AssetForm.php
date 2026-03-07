@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Assets\Schemas;
 
 use App\Enums\AssetConditionEnum;
 use App\Enums\AssetStatusEnum;
+use App\Models\Asset;
+use App\Models\Category;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -11,6 +13,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
+use Ramsey\Collection\Set;
 
 class AssetForm
 {
@@ -18,7 +21,6 @@ class AssetForm
     {
         return $schema
             ->components([
-
                 Section::make('Informasi Utama')
                     ->description('Identitas dasar aset kampus')
                     ->icon('heroicon-o-identification')
@@ -26,6 +28,39 @@ class AssetForm
                     ->schema([
 
                         Grid::make(12)->schema([
+                            Select::make('category_id')
+                                ->label('Kategori Aset')
+                                ->relationship('category', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, Set $set) {
+
+                                    $category = Category::find($state);
+
+                                    if (!$category) {
+                                        return;
+                                    }
+
+                                    $prefix = $category->prefix_code;
+
+                                    $lastAsset = Asset::where('category_id', $state)
+                                        ->orderBy('id', 'desc')
+                                        ->first();
+
+                                    $number = 1;
+
+                                    if ($lastAsset) {
+                                        preg_match('/(\d+)$/', $lastAsset->asset_code, $match);
+                                        $number = isset($match[1]) ? ((int)$match[1] + 1) : 1;
+                                    }
+
+                                    $code = $prefix . '-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+
+                                    $set('asset_code', $code);
+                                })
+                                ->columnSpan(6),
                             TextInput::make('asset_code')
                                 ->label('Kode Aset')
                                 ->required()
@@ -33,7 +68,6 @@ class AssetForm
                                 ->placeholder('UNMARIS/IT/2026/001')
                                 ->maxLength(50)
                                 ->columnSpan(4),
-
                             TextInput::make('name')
                                 ->label('Nama Aset')
                                 ->required()
@@ -41,13 +75,7 @@ class AssetForm
                                 ->maxLength(200)
                                 ->columnSpan(8),
 
-                            Select::make('category_id')
-                                ->label('Kategori Aset')
-                                ->relationship('category', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->required()
-                                ->columnSpan(6),
+
 
                         ]),
 
