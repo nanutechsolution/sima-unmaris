@@ -32,15 +32,16 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::hex('#FDE01A'), // Biru Dongker Logo
+                'primary' => Color::Amber, // Biru Dongker Logo
                 'warning' => Color::hex('#1B1464'), // Kuning Emas Logo
                 'success' => Color::Emerald,
                 'danger'  => Color::Rose,
                 'info'    => Color::Sky,
                 'gray'    => Color::Slate,
+
             ])
             // ->brandLogo(asset('images/logo-unmaris.png'))
-            ->brandLogoHeight('2.5rem')
+            // ->brandLogoHeight('2.5rem')
             ->brandName('SIMA Stella Maris')
             ->favicon(asset('images/logo-unmaris.png'))
             ->databaseNotifications()
@@ -56,6 +57,10 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(NavigationGroupEnum::INVENTORY_ATK->value)
                     ->icon(Heroicon::OutlinedArchiveBox)
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label(NavigationGroupEnum::SERVICE_SATISFACTION->value)
+                    ->icon(Heroicon::OutlinedChatBubbleBottomCenterText)
                     ->collapsed(),
                 NavigationGroup::make()
                     ->label(NavigationGroupEnum::SYSTEM_AUDIT->value)

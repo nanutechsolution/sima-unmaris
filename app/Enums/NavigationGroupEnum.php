@@ -8,7 +8,7 @@ enum NavigationGroupEnum: string
     case ASSET_MANAGEMENT = 'Manajemen Aset';
     case INVENTORY_ATK = 'Inventori & ATK';
     case SYSTEM_AUDIT = 'Sistem & Audit Trail';
-
+    case SERVICE_SATISFACTION = 'Layanan & Kepuasan';
 
     /**
      * Mendapatkan label string untuk Filament.
