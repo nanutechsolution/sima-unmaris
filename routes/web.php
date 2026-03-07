@@ -4,8 +4,8 @@ use App\Models\Asset;
 use App\Models\MaintenanceLog;
 use App\Models\User;
 use Filament\Notifications\Notification;
-use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return redirect('/admin');
