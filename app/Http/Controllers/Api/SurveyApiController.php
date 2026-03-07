@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class SurveyApiController extends Controller
 {
@@ -79,7 +80,7 @@ class SurveyApiController extends Controller
                 ['email' => $siakadUser['identifier'] . '@unmaris.ac.id'],
                 [
                     'name' => $siakadUser['name'],
-                    'password' => bcrypt(\Str::random(16)),
+                    'password' => bcrypt(Str::random(16)),
                     'username_siakad' => $siakadUser['identifier'],
                     'role_name' => $siakadUser['role'],
                 ]
@@ -95,7 +96,6 @@ class SurveyApiController extends Controller
                 ],
                 'token' => $localToken,
             ]);
-
         } catch (\Exception $e) {
             Log::error('SIAKAD Bridge Error: ' . $e->getMessage());
             return response()->json(['message' => 'Kesalahan koneksi ke SIAKAD.'], 500);
