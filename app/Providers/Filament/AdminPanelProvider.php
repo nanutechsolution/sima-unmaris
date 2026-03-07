@@ -35,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->databaseNotifications()
+            ->databaseNotificationsPolling('10s')
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label(NavigationGroupEnum::MASTER_DATA->value)
