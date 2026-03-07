@@ -14,28 +14,12 @@ class InventoryItemsTable
     {
         return $table
             ->columns([
-                TextColumn::make('transaction_date')
-                    ->label('Tanggal')
-                    ->date()
-                    ->sortable(),
-
-                TextColumn::make('item.name')
-                    ->label('Barang')
-                    ->description(fn($record) => "SKU: {$record->item->sku}"),
-
-                TextColumn::make('type')
-                    ->label('Tipe')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'in' ? 'MASUK' : 'KELUAR')
-                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger'),
-
-                TextColumn::make('quantity')
-                    ->label('Jumlah')
-                    ->formatStateUsing(fn($state, $record) => "{$state} {$record->item->unit}"),
-
-                TextColumn::make('department.name')
-                    ->label('Unit Peminta')
-                    ->placeholder('-'),
+                TextColumn::make('sku')->label('SKU')->searchable()->sortable(),
+                TextColumn::make('name')->label('Nama Barang')->searchable()->sortable(),
+                TextColumn::make('category')->label('Kategori')->searchable()->sortable(),
+                TextColumn::make('unit')->label('Satuan'),
+                TextColumn::make('current_stock')->label('Stok Saat Ini')->sortable(),
+                TextColumn::make('min_stock')->label('Stok Minimum'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
