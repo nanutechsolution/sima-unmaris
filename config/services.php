@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    /**
+     * Konfigurasi Integrasi SIAKAD UNMARIS
+     * Data ini diambil dari file .env untuk keamanan.
+     */
+    'siakad' => [
+        'url' => env('SIAKAD_API_URL', 'https://siakad.unmaris.ac.id/api/v1'),
+        'key' => env('SIAKAD_API_KEY'), // Secret key yang sama dengan di SIAKAD
+    ],
+
 ];

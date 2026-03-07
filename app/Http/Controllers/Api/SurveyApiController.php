@@ -7,61 +7,103 @@ use App\Models\FacilityFeedback;
 use App\Models\SurveyResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
 
-/**
- * SurveyApiController
- * Menangani logika backend untuk Portal Survei Terintegrasi (React)
- * dengan standar keamanan Enterprise.
- */
 class SurveyApiController extends Controller
 {
     /**
-     * LOGIN VIA SIAKAD API
-     * Mengotentikasi user dan mengembalikan Token (Sanctum).
+     * AMBIL DAFTAR SURVEI UNTUK DASHBOARD
+     * Fitur baru: Mahasiswa bisa melihat semua survei yang tersedia.
      */
-    public function login(Request $request)
+    public function getAvailableSurveys(Request $request)
     {
-        $request->validate([
-            'nim_nidn' => 'required',
-            'password' => 'required',
-        ]);
+        $userId = $request->user()->id;
 
-        /**
-         * SIMULASI INTEGRASI API SIAKAD
-         * Dalam produksi, Anda akan melakukan POST ke endpoint SIAKAD 
-         * untuk memverifikasi kredensial mahasiswa/dosen.
-         */
-        // $response = Http::post('https://siakad.unmaris.ac.id/api/v1/verify', $request->all());
+        $surveys = FacilityFeedback::where('status', 'active')
+            ->latest()
+            ->get()
+            ->map(function ($survey) use ($userId) {
+                // Cek status partisipasi untuk setiap survei
+                $hasSubmitted = SurveyResponse::where('facility_feedback_id', $survey->id)
+                    ->where('user_id', $userId)
+                    ->exists();
 
-        // Simulasi pencarian user di database lokal yang sudah tersinkron dengan SIAKAD
-        $user = User::where('email', $request->nim_nidn . '@unmaris.ac.id')->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Kredensial SIAKAD tidak valid.'
-            ], 401);
-        }
-
-        // Generate Token Akses Aman
-        $token = $user->createToken('survey_access_token')->plainTextToken;
+                return [
+                    'id' => $survey->id,
+                    'title' => $survey->title,
+                    'description' => $survey->description,
+                    'has_submitted' => $hasSubmitted,
+                ];
+            });
 
         return response()->json([
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'role' => $user->roles()->first()?->name ?? 'Mahasiswa',
-            ],
-            'token' => $token,
+            'surveys' => $surveys
         ]);
     }
 
     /**
-     * AMBIL DETAIL SURVEI & STATUS USER
-     * Mengecek apakah user yang login sudah pernah mengisi atau belum.
+     * LOGIN BRIDGE: SIMA -> SIAKAD
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'nim_nidn' => 'required|string',
+            'password' => 'required',
+        ]);
+
+        try {
+            $baseUrl = rtrim(config('services.siakad.url'), '/');
+            $apiKey = config('services.siakad.key');
+
+            $response = Http::timeout(5)->withHeaders([
+                'X-SIMA-KEY' => $apiKey,
+                'Accept' => 'application/json',
+            ])->post($baseUrl . '/login', [
+                'username' => $request->nim_nidn,
+                'password' => $request->password,
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'message' => $response->json('message') ?? 'SIAKAD merespon dengan error.',
+                ], $response->status());
+            }
+
+            $siakadToken = $response->json('token');
+            $profileResponse = Http::withToken($siakadToken)->get($baseUrl . '/user/me');
+            $siakadUser = $profileResponse->json('data');
+
+            $user = User::updateOrCreate(
+                ['email' => $siakadUser['identifier'] . '@unmaris.ac.id'],
+                [
+                    'name' => $siakadUser['name'],
+                    'password' => bcrypt(\Str::random(16)),
+                    'username_siakad' => $siakadUser['identifier'],
+                    'role_name' => $siakadUser['role'],
+                ]
+            );
+
+            $localToken = $user->createToken('portal_survei_access')->plainTextToken;
+
+            return response()->json([
+                'user' => [
+                    'name' => $user->name,
+                    'role' => $user->role_name,
+                    'identifier' => $user->username_siakad,
+                ],
+                'token' => $localToken,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('SIAKAD Bridge Error: ' . $e->getMessage());
+            return response()->json(['message' => 'Kesalahan koneksi ke SIAKAD.'], 500);
+        }
+    }
+
+    /**
+     * AMBIL DETAIL SURVEI SPESIFIK
      */
     public function getSurveyDetails(Request $request, $id)
     {
@@ -69,65 +111,54 @@ class SurveyApiController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        // Cek partisipasi berdasarkan User ID (Keamanan Tinggi)
         $hasSubmitted = SurveyResponse::where('facility_feedback_id', $id)
             ->where('user_id', $request->user()->id)
             ->exists();
 
         return response()->json([
-            'survey' => $survey,
+            'survey' => [
+                'id' => $survey->id,
+                'title' => $survey->title,
+                'description' => $survey->description,
+                'schema' => $survey->form_schema,
+            ],
             'has_submitted' => $hasSubmitted,
-            'server_time' => now()->toIso8601String()
         ]);
     }
 
     /**
-     * SUBMIT JAWABAN SURVEI
-     * Dilengkapi proteksi double-submission dan audit trail.
+     * SIMPAN RESPON SURVEI
      */
     public function submitResponse(Request $request, $id)
     {
-        $survey = FacilityFeedback::findOrFail($id);
-        $user = $request->user();
+        $survey = FacilityFeedback::where('id', $id)->where('status', 'active')->firstOrFail();
 
-        // 1. Validasi Double Submission (Mencegah Bypass Client-side)
-        $exists = SurveyResponse::where('facility_feedback_id', $id)
-            ->where('user_id', $user->id)
+        $alreadySubmitted = SurveyResponse::where('facility_feedback_id', $id)
+            ->where('user_id', $request->user()->id)
             ->exists();
 
-        if ($exists) {
-            return response()->json([
-                'message' => 'Anda sudah berpartisipasi dalam survei ini.'
-            ], 422);
+        if ($alreadySubmitted) {
+            return response()->json(['message' => 'Anda sudah berpartisipasi.'], 403);
         }
 
-        // 2. Validasi Data
-        $request->validate([
-            'answers' => 'required|array',
-        ]);
+        $request->validate(['answers' => 'required|array']);
 
-        // 3. Simpan Jawaban dengan Metadata Lengkap
-        $response = SurveyResponse::create([
-            'facility_feedback_id' => $survey->id,
-            'user_id' => $user->id, // Mengunci ke akun login
-            'responder_name' => $user->name,
-            'responder_type' => $user->roles()->first()?->name ?? 'Mahasiswa',
+        SurveyResponse::create([
+            'facility_feedback_id' => $id,
+            'user_id' => $request->user()->id,
+            'responder_name' => $request->user()->name,
+            'responder_type' => $request->user()->role_name ?? 'Mahasiswa',
             'answers' => $request->answers,
             'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
         ]);
 
-        // 4. Kirim Notifikasi ke Admin (Real-time via Filament)
-        $admins = User::role('Super Admin')->get();
+        $admins = User::role(['Super Admin'])->get();
         Notification::make()
-            ->title('Respon Survei Terverifikasi')
-            ->body("{$user->name} baru saja mengirimkan respon untuk {$survey->title}")
+            ->title('📢 Respon Survei Baru')
+            ->body("Respon masuk dari {$request->user()->name} untuk: {$survey->title}")
             ->success()
             ->sendToDatabase($admins);
 
-        return response()->json([
-            'message' => 'Terima kasih, jawaban Anda telah terekam secara permanen.',
-            'reference_id' => $response->id
-        ], 201);
+        return response()->json(['message' => 'Jawaban Anda telah diverifikasi dan disimpan.']);
     }
 }

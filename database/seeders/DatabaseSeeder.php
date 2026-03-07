@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             CategorySeeder::class,
             AssetSeeder::class,
+            SurveySeeder::class,
         ]);
     }
 }
