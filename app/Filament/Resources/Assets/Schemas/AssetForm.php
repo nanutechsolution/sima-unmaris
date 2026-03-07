@@ -118,15 +118,14 @@ class AssetForm
                             TextInput::make('acquisition_value')
                                 ->label('Harga Perolehan')
                                 ->helperText('Harga asli saat pembelian, untuk keperluan akuntansi dan penyusutan.')
-                                ->numeric()
                                 ->required()
                                 ->prefix('Rp')
                                 ->placeholder('15000000')
-                                ->minValue(0)
-                                ->step(1)
                                 ->mask(RawJs::make('$money($input)'))
                                 ->stripCharacters(',')
-                                ->dehydrateStateUsing(fn($state) => (int) str_replace(',', '', $state))
+                                ->dehydrateStateUsing(function ($state) {
+                                    return (int) preg_replace('/[^0-9]/', '', $state);
+                                })
                                 ->columnSpan(6),
                             TextInput::make('useful_life_years')
                                 ->label('Umur Ekonomis (Tahun)')
