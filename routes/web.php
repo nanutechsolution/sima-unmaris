@@ -50,8 +50,8 @@ Route::post('/verify-asset/{signature}/report', function (Request $request, stri
 
 
     // 3. KIRIM NOTIFIKASI REAL-TIME KE ADMIN & STAF
-    // Mengambil semua user yang memiliki role Super Admin atau Staf Inventaris
-    $admins = User::role(['Super Admin', 'Staf Inventaris'])->get();
+    // Mengambil semua user yang memiliki role Super Admin atau Staf Operasional
+    $admins = User::role(['Super Admin', 'Staf Operasional'])->get();
 
     // Tembakkan notifikasi ke database
     Notification::make()
