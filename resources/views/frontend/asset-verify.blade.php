@@ -6,6 +6,8 @@
     <title>Verifikasi Aset - UNMARIS</title>
     <!-- Menggunakan Tailwind CSS CDN untuk kepraktisan halaman publik eksternal -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- logo -->
+    <link rel="icon" href="{{ asset('images/logo-unmaris.png') }}" type="image/x-icon">
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased font-sans">
     <!-- Kontainer utama menyerupai layar HP -->
