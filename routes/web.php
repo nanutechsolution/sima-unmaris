@@ -76,13 +76,6 @@ Route::get('/survei/{id}', function (Request $request, $id) {
     ]);
 })->name('survey.show');
 
-    // Cari survei berdasarkan ID dan pastikan statusnya 'active'
-    $survey = FacilityFeedback::where('id', $id)
-        ->where('status', 'active')
-        ->firstOrFail();
-
-    return view('frontend.dynamic-survey', compact('survey'));
-})->name('survey.show');
 Route::post('/survei/{id}', function (Request $request, $id) {
     // Cek Anti-Spam
     if (!empty($request->website_url)) {
