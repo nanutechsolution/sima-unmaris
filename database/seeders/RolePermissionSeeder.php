@@ -11,67 +11,79 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Reset cache roles dan permissions dari Spatie
+        // Reset cache permission Spatie
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // 1. Daftar Hak Akses (Permissions)
-        $permissions = [
-            'view_asset',
-            'create_asset',
-            'edit_asset',
-            'delete_asset',
-            'process_handover',
-            'view_master_data',
-            'manage_master_data',
-            'manage_users',
-            'manage_roles',
-            'view_any_asset',
-            'update_asset'
+        // 1. DAFTAR HAK AKSES FULL (Semua Modul)
+        $permissionsByModule = [
+            'Aset' => [
+                'view_any_asset', 'view_asset', 'create_asset', 'update_asset', 'delete_asset',
+                'restore_asset', 'force_delete_asset', 'handover_asset', 'generate_qr_asset',
+            ],
+            'Inventori & ATK' => [
+                'view_any_inventory', 'manage_inventory',
+            ],
+            'Operasional' => [
+                'view_any_loan', 'manage_loan',
+                'view_any_maintenance', 'manage_maintenance',
+            ],
+            'Master Data' => [
+                'view_any_master', 'manage_master', // Untuk Kategori, Lokasi, Ruangan, Supplier
+            ],
+            'Sistem & Keamanan' => [
+                'manage_users', 'manage_roles', 'view_audit_trail',
+            ],
+            'Survei & Layanan' => [
+                'view_any_survey', 'manage_survey',
+            ],
         ];
 
-        // Buat permissions ke database
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+        $allPermissions = [];
+        foreach ($permissionsByModule as $module => $perms) {
+            foreach ($perms as $perm) {
+                Permission::firstOrCreate(['name' => $perm]);
+                $allPermissions[] = $perm;
+            }
         }
 
-        // 2. Buat Role dan berikan Hak Akses
-
-        // Role: Super Admin (Bisa melakukan segalanya)
+        // 2. SETUP ROLE & PENUGASAN
+        
+        // --- ROLE: Super Admin (Akses Tanpa Batas) ---
         $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
-        $superAdminRole->givePermissionTo(Permission::all());
+        $superAdminRole->syncPermissions(Permission::all());
 
-        // Role: Staf Operasional / Gudang (Akses terbatas)
-        $staffRole = Role::firstOrCreate(['name' => 'Staf Operasional']);
-        $staffRole->givePermissionTo([
-            'view_asset',
-            'create_asset',
-            'edit_asset',
-            'process_handover',
-            'view_master_data',
-            'manage_master_data',
-            'view_any_asset',
+        // --- ROLE: Staf Inventaris (Bisa operasional, dilarang hapus permanen & atur user) ---
+        $stafRole = Role::firstOrCreate(['name' => 'Staf Inventaris']);
+        $stafRole->syncPermissions([
+            'view_any_asset', 'view_asset', 'create_asset', 'update_asset', 'handover_asset', 'generate_qr_asset',
+            'view_any_inventory', 'manage_inventory',
+            'view_any_loan', 'manage_loan',
+            'view_any_maintenance', 'manage_maintenance',
+            'view_any_master', 'manage_master',
         ]);
 
-        // 3. Buat Akun User Default untuk Super Admin
-        $adminUser = User::firstOrCreate(
-            ['email' => 'admin@unmaris.ac.id'], // Ganti dengan email kampus yang sesuai
-            [
-                'name' => 'Super Administrator',
-                'password' => Hash::make('password123'), // Password default
-                'email_verified_at' => now(),
-            ]
+        // --- ROLE: Auditor / Pimpinan (Hanya bisa melihat, dilarang edit/tambah) ---
+        $auditorRole = Role::firstOrCreate(['name' => 'Auditor']);
+        $auditorRole->syncPermissions([
+            'view_any_asset', 'view_asset', 'view_any_inventory', 'view_any_loan', 
+            'view_any_maintenance', 'view_any_master', 'view_audit_trail', 'view_any_survey'
+        ]);
+
+        // 3. BUAT/UPDATE USER DEFAULT
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@unmaris.ac.id'],
+            ['name' => 'Administrator Utama', 'password' => Hash::make('password123'), 'email_verified_at' => now()]
         );
+        if (!$admin->hasRole('Super Admin')) $admin->assignRole($superAdminRole);
 
-        // Tempelkan role Super Admin ke user tersebut
-        if (!$adminUser->hasRole('Super Admin')) {
-            $adminUser->assignRole('Super Admin');
-        }
+        $staf = User::firstOrCreate(
+            ['email' => 'staf@unmaris.ac.id'],
+            ['name' => 'Staf Gudang Pusat', 'password' => Hash::make('password123'), 'email_verified_at' => now()]
+        );
+        if (!$staf->hasRole('Staf Inventaris')) $staf->assignRole($stafRole);
 
-        $this->command->info('✅ Seeder Role, Permission, dan User Admin berhasil dijalankan!');
+        $this->command->info('✅ Hak Akses Full berhasil di-seeding!');
     }
 }
