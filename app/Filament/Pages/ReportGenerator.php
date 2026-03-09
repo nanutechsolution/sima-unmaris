@@ -100,7 +100,7 @@ class ReportGenerator extends Page
                     </head>
                     <body>
                         <div class="kop-surat">
-                            <h1>UNIVERSITAS MARITIM (UNMARIS)</h1>
+                            <h1>UNIVERSITAS STELLA MARIS (UNMARIS)</h1>
                             <p>Jl. Pendidikan No. 1, Kota Akademik, Provinsi Cerdas 12345</p>
                             <p>Email: rektorat@unmaris.ac.id | Telp: (021) 1234567</p>
                         </div>

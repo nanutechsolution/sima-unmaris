@@ -56,5 +56,4 @@ Route::post('/verify-asset/{signature}/report', function (Request $request, stri
         ->sendToDatabase($admins);
     return redirect()->route('asset.verify', $signature)
         ->with('success', 'Terima kasih! Laporan kerusakan telah terkirim.');
-})->name('asset.report.submit')->middleware('throttle:3,1'); 
-
+})->name('asset.report.submit')->middleware('throttle:3,1');
