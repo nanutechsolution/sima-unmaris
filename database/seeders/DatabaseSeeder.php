@@ -23,14 +23,14 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             RolePermissionSeeder::class,
-            // DepartmentSeeder::class,
-            // SupplierSeeder::class,
-            // UserSeeder::class,
-            // LocationSeeder::class,
-            // RoomSeeder::class,
-            // CategorySeeder::class,
-            // AssetSeeder::class,
-            // SurveySeeder::class,
+            DepartmentSeeder::class,
+            SupplierSeeder::class,
+            UserSeeder::class,
+            LocationSeeder::class,
+            RoomSeeder::class,
+            CategorySeeder::class,
+            AssetSeeder::class,
+            SurveySeeder::class,
         ]);
     }
 }
