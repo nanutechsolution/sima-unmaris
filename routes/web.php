@@ -15,7 +15,7 @@ Route::get('/verify-asset/{signature}', function (string $signature) {
     $asset = Asset::with(['category', 'room.location', 'pic'])
         ->where('qr_signature_hash', $signature)
         ->firstOrFail();
-
+p
     // Mengembalikan tampilan halaman publik (Frontend) dengan membawa data $asset
     return view('frontend.asset-verify', compact('asset'));
 })->name('asset.verify');
