@@ -5,15 +5,17 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasUuids, HasRoles, HasApiTokens;
@@ -29,6 +31,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'username_siakad', // Field tambahan untuk sinkronisasi
         'role_name',       // Field tambahan untuk sinkronisasi
+        'avatar_url',
     ];
 
     /**
@@ -61,5 +64,11 @@ class User extends Authenticatable implements FilamentUser
         // Anda dapat mengganti logika ini sesuai kebutuhan (misalnya, berdasarkan peran atau
         // izin tertentu)
         return true; // Ganti dengan logika otorisasi yang sesuai
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+
+        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
     }
 }
