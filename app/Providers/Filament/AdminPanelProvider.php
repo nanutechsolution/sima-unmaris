@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile()
             ->colors([
                 'primary' => Color::Amber, // Biru Dongker Logo
                 'warning' => Color::hex('#1B1464'), // Kuning Emas Logo
