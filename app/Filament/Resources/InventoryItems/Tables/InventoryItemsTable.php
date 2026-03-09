@@ -27,8 +27,17 @@ class InventoryItemsTable
                 TextColumn::make('name')->label('Nama Barang')->searchable()->sortable(),
                 TextColumn::make('category')->label('Kategori')->searchable()->sortable(),
                 TextColumn::make('unit')->label('Satuan'),
-                TextColumn::make('current_stock')->label('Stok Saat Ini')->sortable(),
-                TextColumn::make('min_stock')->label('Stok Minimum'),
+                TextColumn::make('current_stock')
+                    ->label('Stok Saat Ini')
+                    ->alignCenter()
+                    ->weight('bold')
+                    // Logic Low Stock Alert
+                    ->color(fn($record) => $record->current_stock <= $record->min_stock ? 'danger' : 'success')
+                    ->formatStateUsing(fn($state, $record) => "{$state} {$record->unit}"),
+                TextColumn::make('min_stock')
+                    ->label('Batas Aman')
+                    ->size('xs')
+                    ->color('gray'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
