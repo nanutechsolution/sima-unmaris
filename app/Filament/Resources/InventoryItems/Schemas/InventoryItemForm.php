@@ -33,12 +33,12 @@ class InventoryItemForm
                         Select::make('category')
                             ->label('Kategori')
                             ->options([
-                                'Alat Tulis' => 'Alat Tulis',
-                                'Kebersihan' => 'Kebersihan',
-                                'Konsumsi' => 'Konsumsi',
+                                'Alat Tulis Kantor' => 'Alat Tulis Kantor (ATK)',
+                                'Peralatan Kebersihan' => 'Peralatan Kebersihan',
+                                'Kebutuhan Dapur/Konsumsi' => 'Kebutuhan Dapur/Konsumsi',
+                                'Tinta & Toner' => 'Tinta & Toner Printer',
                                 'Lainnya' => 'Lainnya',
                             ])->required(),
-
                         TextInput::make('unit')
                             ->label('Satuan')
                             ->placeholder('Cth: Rim, Box, Pcs')
