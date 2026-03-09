@@ -46,6 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('SIMA Stella Maris')
             ->favicon(asset('images/logo-unmaris.png'))
             ->databaseNotifications()
+            ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label(NavigationGroupEnum::MASTER_DATA->value)
