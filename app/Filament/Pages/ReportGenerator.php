@@ -80,6 +80,9 @@ class ReportGenerator extends Page
                             $q->where('location_id', $data['location_id']);
                         });
                     }
+                    if (!empty($data['room_id'])) {
+                        $query->where('room_id', $data['room_id']);
+                    }
                     if (!empty($data['condition'])) {
                         $query->where('condition', $data['condition']);
                     }
