@@ -118,8 +118,8 @@ class ReportGenerator extends Page
                     <body>
                         <div class="kop-surat">
                             <h1>UNIVERSITAS STELLA MARIS (UNMARIS)</h1>
-                            <p>Jl. Pendidikan No. 1, Kota Akademik, Provinsi Cerdas 12345</p>
-                            <p>Email: rektorat@unmaris.ac.id | Telp: (021) 1234567</p>
+                            <p>Jl. Karya Kasih No. 5, Tambolaka – Kab. Sumba Barat Daya</p>
+                            <p>Email: rektorat@unmarissumba.ac.id | Telp: (021) 1234567</p>
                         </div>
                         
                         <div class="judul">
@@ -180,7 +180,7 @@ class ReportGenerator extends Page
                                 <p>Disahkan di Tempat,<br>' . now()->translatedFormat('d F Y') . '</p>
                                 <p>Kepala Biro Administrasi Umum,</p>
                                 <br><br><br><br>
-                                <p><b>_________________________</b><br>NIP. 19800101 200501 1 001</p>
+                                <p><b>_________________________</b><br>NIP.</p>
                             </div>
                             <div class="clear"></div>
                         </div>
