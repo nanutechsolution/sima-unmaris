@@ -104,51 +104,94 @@ class ReportGenerator extends Page
                     }
 
                     $assets = $query->orderBy('acquisition_date', 'desc')->get();
-                    if ($data['format'] === 'excel') {
-                        $fileName = 'Laporan_Aset_Kampus_' . date('Ymd_His') . '.csv';
-
-                        return response()->streamDownload(function () use ($assets) {
-                            $file = fopen('php://output', 'w');
-
-                            // Tambahkan BOM agar Excel membaca karakter khusus (UTF-8) dengan benar
-                            fputs($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
-
-                            // Header Kolom Excel (Gunakan pemisah titik koma ';' agar rapi di Excel versi regional Indonesia)
-                            fputcsv($file, ['No', 'Kode Aset', 'Nama Barang', 'Kategori', 'Lokasi / Ruang', 'Kondisi', 'Harga Beli (Rp)', 'Nilai Buku (Rp)'], ';');
-
-                            $totalHargaBeli = 0;
-                            $totalNilaiBuku = 0;
-
-                            foreach ($assets as $index => $asset) {
-                                $hargaBeli = $asset->acquisition_value ?? 0;
-                                $nilaiBuku = $asset->current_value ?? $hargaBeli;
-                                $kondisiLabel = is_object($asset->condition) ? $asset->condition->getLabel() : ucfirst($asset->condition);
-
-                                $totalHargaBeli += $hargaBeli;
-                                $totalNilaiBuku += $nilaiBuku;
-
-                                fputcsv($file, [
-                                    $index + 1,
-                                    $asset->asset_code,
-                                    $asset->name,
-                                    $asset->category->name ?? '-',
-                                    $asset->room->name ?? '-',
-                                    $kondisiLabel,
-                                    $hargaBeli,
-                                    $nilaiBuku
-                                ], ';');
-                            }
-
-                            // Footer Total
-                            fputcsv($file, ['', '', '', '', '', 'TOTAL KESELURUHAN:', $totalHargaBeli, $totalNilaiBuku], ';');
-
-                            fclose($file);
-                        }, $fileName, [
-                            'Content-Type' => 'text/csv',
-                            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-                        ]);
+                    $teksPeriode = '';
+                    if (!empty($data['start_date']) || !empty($data['end_date'])) {
+                        $startDate = !empty($data['start_date']) ? \Carbon\Carbon::parse($data['start_date'])->translatedFormat('d F Y') : 'Awal';
+                        $endDate = !empty($data['end_date']) ? \Carbon\Carbon::parse($data['end_date'])->translatedFormat('d F Y') : 'Sekarang';
+                        $teksPeriode = $startDate . ' s/d ' . $endDate;
                     }
-                    // 2. TEMPLATE HTML UNTUK STANDAR BAN-PT (Kop Surat & Tabel)
+                    if ($data['format'] === 'excel') {
+                        $fileName = 'Laporan_Aset_Kampus_' . date('Ymd_His') . '.xlsx';
+                        $filePath = storage_path('app/public/' . $fileName);
+
+                        // Gunakan ->noHeaderRow() agar kita bisa menulis teks bebas di baris paling atas
+                        $writer = \Spatie\SimpleExcel\SimpleExcelWriter::create($filePath)->noHeaderRow();
+
+                        // --- 1. HEADER INFORMASI LAPORAN ---
+                        $writer->addRow(['REKAPITULASI ASET TETAP (INVENTARIS KAMPUS)']);
+                        $writer->addRow(['Dicetak pada:', now()->translatedFormat('d F Y H:i')]);
+
+                        // Cek dan tulis rentang tanggal jika user mengisi filter tanggal
+                        if (!empty($data['start_date']) || !empty($data['end_date'])) {
+                            $startDate = !empty($data['start_date']) ? \Carbon\Carbon::parse($data['start_date'])->translatedFormat('d F Y') : 'Awal';
+                            $endDate = !empty($data['end_date']) ? \Carbon\Carbon::parse($data['end_date'])->translatedFormat('d F Y') : 'Sekarang';
+
+                            $writer->addRow(['Periode Pembelian:', $startDate . ' s/d ' . $endDate]);
+                        }
+
+                        // Tambahkan baris kosong sebagai jarak sebelum tabel
+                        $writer->addRow(['']);
+
+                        // --- 2. HEADER TABEL DATA ---
+                        $writer->addRow([
+                            'No',
+                            'Kode Aset',
+                            'Nama Barang',
+                            'Kategori',
+                            'Lokasi / Ruang',
+                            'Kondisi',
+                            'Harga Beli (Rp)',
+                            'Nilai Buku (Rp)'
+                        ]);
+
+                        $totalHargaBeli = 0;
+                        $totalNilaiBuku = 0;
+
+                        // --- 3. ISI DATA TABEL ---
+                        foreach ($assets as $index => $asset) {
+                            $hargaBeli = $asset->acquisition_value ?? 0;
+                            $nilaiBuku = $asset->current_value ?? $hargaBeli;
+                            $kondisiLabel = is_object($asset->condition) ? $asset->condition->getLabel() : ucfirst($asset->condition);
+
+                            $totalHargaBeli += $hargaBeli;
+                            $totalNilaiBuku += $nilaiBuku;
+
+                            // Karena noHeaderRow() aktif, kita masukkan value-nya saja secara berurutan
+                            $writer->addRow([
+                                $index + 1,
+                                $asset->asset_code,
+                                $asset->name,
+                                $asset->category->name ?? '-',
+                                $asset->room->name ?? '-',
+                                $kondisiLabel,
+                                $hargaBeli,
+                                $nilaiBuku,
+                            ]);
+                        }
+
+                        // Baris kosong sebelum total
+                        $writer->addRow(['', '', '', '', '', '', '', '']);
+
+                        // Baris Total
+                        $writer->addRow([
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            'TOTAL KESELURUHAN:',
+                            $totalHargaBeli,
+                            $totalNilaiBuku
+                        ]);
+
+                        $writer->close();
+
+                        return response()->download($filePath)->deleteFileAfterSend(true);
+                    }
+                    $htmlPeriode = '';
+                    if ($teksPeriode !== '') {
+                        $htmlPeriode = '<br><span style="font-size: 11pt; font-weight: normal;">Periode Pembelian: ' . $teksPeriode . '</span>';
+                    }
                     $html = '
                     <html>
                     <head>
@@ -176,10 +219,10 @@ class ReportGenerator extends Page
                         </div>
                         
                         <div class="judul">
-                            REKAPITULASI ASET TETAP (INVENTARIS KAMPUS)<br>
-                            <span style="font-size: 10pt; font-weight: normal;">Dicetak pada: ' . now()->translatedFormat('d F Y H:i') . '</span>
+                            REKAPITULASI ASET TETAP (INVENTARIS KAMPUS)
+                            ' . $htmlPeriode . '
+                            <br><span style="font-size: 10pt; font-weight: normal;">Dicetak pada: ' . now()->translatedFormat('d F Y H:i') . '</span>
                         </div>
-                        
                         <table>
                             <thead>
                                 <tr>
