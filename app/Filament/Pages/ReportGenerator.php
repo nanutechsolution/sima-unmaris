@@ -9,7 +9,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use App\Models\Location;
 use App\Models\Asset;
+use App\Models\Room;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Schemas\Components\Utilities\Get;
 
 class ReportGenerator extends Page
 {
@@ -39,18 +41,30 @@ class ReportGenerator extends Page
                         ->options(Location::pluck('name', 'id'))
                         ->searchable()
                         ->placeholder('Semua Lokasi Kampus'),
-                        
+                    Select::make('room_id')
+                        ->label('Filter Ruangan')
+                        ->options(function (Get $get) {
+                            $locationId = $get('location_id');
+                            // Jika lokasi dipilih, tampilkan ruangan di lokasi tersebut saja
+                            if ($locationId) {
+                                return Room::where('location_id', $locationId)->pluck('name', 'id');
+                            }
+                            // Jika tidak ada lokasi yang dipilih, tampilkan semua ruangan
+                            return Room::pluck('name', 'id');
+                        })
+                        ->searchable()
+                        ->placeholder('Semua Ruangan'),
                     Select::make('condition')
                         ->label('Filter Kondisi Fisik')
                         ->options(\App\Enums\AssetConditionEnum::class)
                         ->placeholder('Semua Kondisi'),
-                        
+
                     DatePicker::make('start_date')
                         ->label('Tahun Pembelian (Dari)')
                         ->native(false)
                         ->displayFormat('Y')
                         ->format('Y-01-01'),
-                        
+
                     DatePicker::make('end_date')
                         ->label('Tahun Pembelian (Sampai)')
                         ->native(false)
@@ -60,9 +74,9 @@ class ReportGenerator extends Page
                 ->action(function (array $data) {
                     // 1. QUERY KOMPLEKS BERDASARKAN FILTER
                     $query = Asset::query()->with(['category', 'room.location', 'pic']);
-                    
+
                     if (!empty($data['location_id'])) {
-                        $query->whereHas('room', function($q) use ($data) {
+                        $query->whereHas('room', function ($q) use ($data) {
                             $q->where('location_id', $data['location_id']);
                         });
                     }
@@ -75,9 +89,9 @@ class ReportGenerator extends Page
                     if (!empty($data['end_date'])) {
                         $query->whereDate('acquisition_date', '<=', $data['end_date']);
                     }
-                    
+
                     $assets = $query->orderBy('acquisition_date', 'desc')->get();
-                    
+
                     // 2. TEMPLATE HTML UNTUK STANDAR BAN-PT (Kop Surat & Tabel)
                     $html = '
                     <html>
@@ -123,19 +137,19 @@ class ReportGenerator extends Page
                                 </tr>
                             </thead>
                             <tbody>';
-                            
+
                     $totalHargaBeli = 0;
                     $totalNilaiBuku = 0;
-                    
-                    foreach($assets as $index => $asset) {
+
+                    foreach ($assets as $index => $asset) {
                         // Memanggil rumus penyusutan (current_value) yang kita buat di Model
                         $hargaBeli = $asset->acquisition_value ?? 0;
                         $nilaiBuku = $asset->current_value ?? $hargaBeli;
                         $kondisiLabel = is_object($asset->condition) ? $asset->condition->getLabel() : ucfirst($asset->condition);
-                        
+
                         $totalHargaBeli += $hargaBeli;
                         $totalNilaiBuku += $nilaiBuku;
-                        
+
                         $html .= '<tr>
                             <td class="text-center">' . ($index + 1) . '</td>
                             <td>' . $asset->asset_code . '</td>
@@ -146,7 +160,7 @@ class ReportGenerator extends Page
                             <td class="text-right"><b>' . number_format($nilaiBuku, 0, ',', '.') . '</b></td>
                         </tr>';
                     }
-                    
+
                     $html .= '
                             </tbody>
                             <tfoot>
@@ -169,13 +183,13 @@ class ReportGenerator extends Page
                         </div>
                     </body>
                     </html>';
-                    
+
                     // 3. RENDER HTML MENJADI PDF LANDSCAPE
                     $pdf = Pdf::loadHTML($html)->setPaper('A4', 'landscape');
-                    
+
                     return response()->streamDownload(
-                        fn () => print($pdf->output()), 
-                        'Laporan_Akreditasi_Aset_'.date('Ymd_His').'.pdf'
+                        fn() => print($pdf->output()),
+                        'Laporan_Akreditasi_Aset_' . date('Ymd_His') . '.pdf'
                     );
                 }),
         ];
