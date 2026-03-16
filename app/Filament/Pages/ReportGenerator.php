@@ -11,6 +11,7 @@ use App\Models\Location;
 use App\Models\Asset;
 use App\Models\Room;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Forms\Components\Radio;
 use Filament\Schemas\Components\Utilities\Get;
 
 class ReportGenerator extends Page
@@ -33,9 +34,18 @@ class ReportGenerator extends Page
                 ->color('primary')
                 ->modalHeading('Parameter Laporan Akreditasi')
                 ->modalDescription('Pilih filter data yang ingin ditarik. Kosongkan filter jika ingin mengekspor seluruh aset kampus.')
-                ->modalSubmitActionLabel('Generate PDF Resmi')
+                ->modalSubmitActionLabel('Generate Laporan')
                 ->modalIcon('heroicon-o-printer')
                 ->form([
+                    Radio::make('format')
+                        ->label('Format Dokumen')
+                        ->options([
+                            'pdf' => 'PDF (Siap Cetak)',
+                            'excel' => 'Excel / CSV (Bisa Diolah)',
+                        ])
+                        ->default('pdf')
+                        ->inline()
+                        ->required(),
                     Select::make('location_id')
                         ->label('Filter Lokasi / Gedung')
                         ->options(Location::pluck('name', 'id'))
@@ -94,7 +104,50 @@ class ReportGenerator extends Page
                     }
 
                     $assets = $query->orderBy('acquisition_date', 'desc')->get();
+                    if ($data['format'] === 'excel') {
+                        $fileName = 'Laporan_Aset_Kampus_' . date('Ymd_His') . '.csv';
 
+                        return response()->streamDownload(function () use ($assets) {
+                            $file = fopen('php://output', 'w');
+
+                            // Tambahkan BOM agar Excel membaca karakter khusus (UTF-8) dengan benar
+                            fputs($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+
+                            // Header Kolom Excel (Gunakan pemisah titik koma ';' agar rapi di Excel versi regional Indonesia)
+                            fputcsv($file, ['No', 'Kode Aset', 'Nama Barang', 'Kategori', 'Lokasi / Ruang', 'Kondisi', 'Harga Beli (Rp)', 'Nilai Buku (Rp)'], ';');
+
+                            $totalHargaBeli = 0;
+                            $totalNilaiBuku = 0;
+
+                            foreach ($assets as $index => $asset) {
+                                $hargaBeli = $asset->acquisition_value ?? 0;
+                                $nilaiBuku = $asset->current_value ?? $hargaBeli;
+                                $kondisiLabel = is_object($asset->condition) ? $asset->condition->getLabel() : ucfirst($asset->condition);
+
+                                $totalHargaBeli += $hargaBeli;
+                                $totalNilaiBuku += $nilaiBuku;
+
+                                fputcsv($file, [
+                                    $index + 1,
+                                    $asset->asset_code,
+                                    $asset->name,
+                                    $asset->category->name ?? '-',
+                                    $asset->room->name ?? '-',
+                                    $kondisiLabel,
+                                    $hargaBeli,
+                                    $nilaiBuku
+                                ], ';');
+                            }
+
+                            // Footer Total
+                            fputcsv($file, ['', '', '', '', '', 'TOTAL KESELURUHAN:', $totalHargaBeli, $totalNilaiBuku], ';');
+
+                            fclose($file);
+                        }, $fileName, [
+                            'Content-Type' => 'text/csv',
+                            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                        ]);
+                    }
                     // 2. TEMPLATE HTML UNTUK STANDAR BAN-PT (Kop Surat & Tabel)
                     $html = '
                     <html>
