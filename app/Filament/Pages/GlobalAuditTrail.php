@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\NavigationGroupEnum;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\ViewAction as ActionsViewAction;
 use Filament\Pages\Page;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -22,6 +23,7 @@ use Filament\Tables\Columns\Layout\View as TableView;
 class GlobalAuditTrail extends Page implements HasTable
 {
     use InteractsWithTable;
+    use HasPageShield;
 
     protected static ?string $title = 'Log Aktivitas Sistem';
     protected static ?string $navigationLabel = 'Log Aktivitas Global';

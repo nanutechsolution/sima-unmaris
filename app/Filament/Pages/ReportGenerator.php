@@ -11,11 +11,13 @@ use App\Models\Location;
 use App\Models\Asset;
 use App\Models\Room;
 use Barryvdh\DomPDF\Facade\Pdf;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms\Components\Radio;
 use Filament\Schemas\Components\Utilities\Get;
 
 class ReportGenerator extends Page
 {
+    use HasPageShield;
     protected static ?string $modelLabel = 'Generator Laporan';
     protected static ?string $title = 'Laporan Akreditasi & Keuangan';
     protected static ?string $slug = 'report-generator';
