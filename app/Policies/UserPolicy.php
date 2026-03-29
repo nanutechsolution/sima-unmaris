@@ -2,43 +2,71 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use Illuminate\Foundation\Auth\User as AuthUser;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
 {
-    /**
-     * Hanya yang punya izin manage_users yang bisa melihat menu Pengguna.
-     */
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('manage_users');
+        return $authUser->can('ViewAny:User');
     }
 
-    public function view(User $user, User $model): bool
+    public function view(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('manage_users');
+        return $authUser->can('View:User');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('manage_users');
+        return $authUser->can('Create:User');
     }
 
-    public function update(User $user, User $model): bool
+    public function update(AuthUser $authUser): bool
     {
-        // Cegah Staf biasa mengedit akun Super Admin!
-        if ($model->hasRole('Super Admin') && !$user->hasRole('Super Admin')) {
-            return false;
-        }
-        return $user->hasPermissionTo('manage_users');
+        return $authUser->can('Update:User');
     }
 
-    public function delete(User $user, User $model): bool
+    public function delete(AuthUser $authUser): bool
     {
-        // Tidak boleh menghapus diri sendiri atau Super Admin
-        if ($user->id === $model->id || $model->hasRole('Super Admin')) {
-            return false;
-        }
-        return $user->hasPermissionTo('manage_users');
+        return $authUser->can('Delete:User');
     }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:User');
+    }
+
+    public function restore(AuthUser $authUser): bool
+    {
+        return $authUser->can('Restore:User');
+    }
+
+    public function forceDelete(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDelete:User');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:User');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:User');
+    }
+
+    public function replicate(AuthUser $authUser): bool
+    {
+        return $authUser->can('Replicate:User');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:User');
+    }
+
 }

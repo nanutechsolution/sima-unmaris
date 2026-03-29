@@ -3,12 +3,20 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Asset;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 
 class AssetConditionChart extends ChartWidget
 {
+    use HasWidgetShield;
     protected ?string $heading = 'Komposisi Kondisi Aset';
     protected static ?int $sort = 2;
+    protected string $color = 'info';
+    protected ?string $maxHeight = '300px';
+    protected int | string | array $columnSpan = [
+        'md' => 1,
+        'xl' => 'full',
+    ];
     protected function getData(): array
     {
         // Menghitung jumlah aset berdasarkan enum kondisinya

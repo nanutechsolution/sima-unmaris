@@ -1,39 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Category;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CategoryPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('view_any_master');
+        return $authUser->can('ViewAny:Category');
     }
 
-    public function view(User $user, Category $category): bool
+    public function view(AuthUser $authUser, Category $category): bool
     {
-        return $user->hasPermissionTo('view_any_master');
+        return $authUser->can('View:Category');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('manage_master');
+        return $authUser->can('Create:Category');
     }
 
-    public function update(User $user, Category $category): bool
+    public function update(AuthUser $authUser, Category $category): bool
     {
-        return $user->hasPermissionTo('manage_master');
+        return $authUser->can('Update:Category');
     }
 
-    public function delete(User $user, Category $category): bool
+    public function delete(AuthUser $authUser, Category $category): bool
     {
-        return $user->hasPermissionTo('manage_master');
+        return $authUser->can('Delete:Category');
     }
 
-    public function forceDelete(User $user, Category $category): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return $user->hasRole('Super Admin');
+        return $authUser->can('DeleteAny:Category');
     }
+
+    public function restore(AuthUser $authUser, Category $category): bool
+    {
+        return $authUser->can('Restore:Category');
+    }
+
+    public function forceDelete(AuthUser $authUser, Category $category): bool
+    {
+        return $authUser->can('ForceDelete:Category');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Category');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Category');
+    }
+
+    public function replicate(AuthUser $authUser, Category $category): bool
+    {
+        return $authUser->can('Replicate:Category');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Category');
+    }
+
 }

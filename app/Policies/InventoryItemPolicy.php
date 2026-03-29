@@ -1,35 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\InventoryItem;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class InventoryItemPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('view_any_inventory');
+        return $authUser->can('ViewAny:InventoryItem');
     }
 
-    public function view(User $user, InventoryItem $inventoryItem): bool
+    public function view(AuthUser $authUser, InventoryItem $inventoryItem): bool
     {
-        return $user->hasPermissionTo('view_any_inventory');
+        return $authUser->can('View:InventoryItem');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('manage_inventory');
+        return $authUser->can('Create:InventoryItem');
     }
 
-    public function update(User $user, InventoryItem $inventoryItem): bool
+    public function update(AuthUser $authUser, InventoryItem $inventoryItem): bool
     {
-        return $user->hasPermissionTo('manage_inventory');
+        return $authUser->can('Update:InventoryItem');
     }
 
-    public function delete(User $user, InventoryItem $inventoryItem): bool
+    public function delete(AuthUser $authUser, InventoryItem $inventoryItem): bool
     {
-        // Hanya Super Admin yang boleh hapus ATK dari database, staf hanya boleh ubah stok
-        return $user->hasRole('Super Admin'); 
+        return $authUser->can('Delete:InventoryItem');
     }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:InventoryItem');
+    }
+
+    public function restore(AuthUser $authUser, InventoryItem $inventoryItem): bool
+    {
+        return $authUser->can('Restore:InventoryItem');
+    }
+
+    public function forceDelete(AuthUser $authUser, InventoryItem $inventoryItem): bool
+    {
+        return $authUser->can('ForceDelete:InventoryItem');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:InventoryItem');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:InventoryItem');
+    }
+
+    public function replicate(AuthUser $authUser, InventoryItem $inventoryItem): bool
+    {
+        return $authUser->can('Replicate:InventoryItem');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:InventoryItem');
+    }
+
 }

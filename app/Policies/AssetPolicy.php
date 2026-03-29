@@ -1,66 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Asset;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AssetPolicy
 {
-    /**
-     * Menentukan apakah user bisa melihat daftar aset.
-     */
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('view_any_asset');
+        return $authUser->can('ViewAny:Asset');
     }
 
-    /**
-     * Menentukan apakah user bisa melihat detail satu aset.
-     */
-    public function view(User $user, Asset $asset): bool
+    public function view(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->hasPermissionTo('view_asset');
+        return $authUser->can('View:Asset');
     }
 
-    /**
-     * Menentukan apakah user bisa menambah aset baru.
-     */
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->hasPermissionTo('create_asset');
+        return $authUser->can('Create:Asset');
     }
 
-    /**
-     * Menentukan apakah user bisa mengubah data aset.
-     */
-    public function update(User $user, Asset $asset): bool
+    public function update(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->hasPermissionTo('update_asset');
+        return $authUser->can('Update:Asset');
     }
 
-    /**
-     * Menentukan apakah user bisa menghapus aset (Soft Delete).
-     */
-    public function delete(User $user, Asset $asset): bool
+    public function delete(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->hasPermissionTo('delete_asset');
+        return $authUser->can('Delete:Asset');
     }
 
-    /**
-     * Menentukan apakah user bisa menghapus aset secara permanen.
-     */
-    public function forceDelete(User $user, Asset $asset): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        // Biasanya hanya Super Admin yang boleh Force Delete
-        return $user->hasRole('Super Admin') && $user->hasPermissionTo('force_delete_asset');
+        return $authUser->can('DeleteAny:Asset');
     }
 
-    /**
-     * Menentukan apakah user bisa memulihkan aset yang dihapus.
-     */
-    public function restore(User $user, Asset $asset): bool
+    public function restore(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->hasPermissionTo('restore_asset');
+        return $authUser->can('Restore:Asset');
     }
+
+    public function forceDelete(AuthUser $authUser, Asset $asset): bool
+    {
+        return $authUser->can('ForceDelete:Asset');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Asset');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Asset');
+    }
+
+    public function replicate(AuthUser $authUser, Asset $asset): bool
+    {
+        return $authUser->can('Replicate:Asset');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Asset');
+    }
+
 }

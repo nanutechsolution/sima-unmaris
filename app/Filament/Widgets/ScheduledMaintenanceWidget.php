@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\MaintenanceLogs\MaintenanceLogResource;
 use App\Models\MaintenanceLog;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Actions\Action;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -11,6 +12,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class ScheduledMaintenanceWidget extends BaseWidget
 {
+     use HasWidgetShield;
     // Judul tabel untuk menampung jadwal servis & laporan publik dari QR Code
     protected static ?string $heading = '🔧 Jadwal Perbaikan & Laporan Masuk';
     

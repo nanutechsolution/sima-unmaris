@@ -38,9 +38,8 @@ class GlobalAuditTrail extends Page implements HasTable
      */
     public static function canAccess(): bool
     {
-        return auth()->user()->hasPermissionTo('view_audit_trail') || auth()->user()->hasRole('Super Admin');
+        return auth()->user()?->can('view_any_system_audit_logs');
     }
-
     public function table(Table $table): Table
     {
         return $table

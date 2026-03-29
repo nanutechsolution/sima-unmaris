@@ -3,13 +3,17 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Asset;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class AssetStatsOverview extends BaseWidget
 {
+    use HasWidgetShield;
+    // Judul utama untuk widget statistik aset
     // Mengatur urutan tampilan widget di atas
     protected static ?int $sort = 1;
+    
 
     protected function getStats(): array
     {

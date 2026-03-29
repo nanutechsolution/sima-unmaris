@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Enums\NavigationGroupEnum;
 use App\Filament\Pages\Auth\EditProfile as AuthEditProfile;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('admin')   
+            ->id('admin')
             ->path('admin')
             ->login()
             ->profile(AuthEditProfile::class)
@@ -76,7 +77,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
+                // AccountWidget::class,
                 // FilamentInfoWidget::class,
             ])
             ->middleware([
@@ -89,6 +90,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make()->navigationGroup(NavigationGroupEnum::SYSTEM_AUDIT->value),
+
             ])
             ->authMiddleware([
                 Authenticate::class,
