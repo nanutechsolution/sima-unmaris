@@ -90,6 +90,7 @@ class AssetForm
                                 ->label('Ruangan')
                                 ->helperText('Lokasi penempatan fisik aset, untuk keperluan inventarisasi dan koordinasi perawatan.')
                                 ->relationship('room', 'name')
+                                ->query(fn($q) => $q->whereNull('deleted_at'))
                                 ->searchable()
                                 ->preload()
                                 ->required()
