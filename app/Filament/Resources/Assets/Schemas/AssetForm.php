@@ -89,8 +89,11 @@ class AssetForm
                             Select::make('room_id')
                                 ->label('Ruangan')
                                 ->helperText('Lokasi penempatan fisik aset, untuk keperluan inventarisasi dan koordinasi perawatan.')
-                                ->relationship('room', 'name')
-                                ->query(fn($q) => $q->whereNull('deleted_at'))
+                                ->relationship(
+                                    'room',
+                                    'name',
+                                    fn($query) => $query->whereNull('deleted_at') // Memastikan hanya mengambil yang belum dihapus
+                                )
                                 ->searchable()
                                 ->preload()
                                 ->required()
