@@ -194,18 +194,30 @@ class ReportGenerator extends Page
                     if ($teksPeriode !== '') {
                         $htmlPeriode = '<br><span style="font-size: 11pt; font-weight: normal;">Periode Pembelian: ' . $teksPeriode . '</span>';
                     }
+                    $pathLogo = public_path('images/logo-unmaris.png'); 
+                    
+                    $logoBase64 = '';
+                    if (file_exists($pathLogo)) {
+                        $logoData = base64_encode(file_get_contents($pathLogo));
+                        $logoBase64 = 'data:image/png;base64,' . $logoData;
+                    }
                     $html = '
                     <html>
-                    <head>
+                   <head>
                         <style>
                             body { font-family: "Times New Roman", Times, serif; font-size: 11pt; margin: 15px; }
-                            .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-                            .kop-surat h1 { margin: 0; font-size: 16pt; text-transform: uppercase; letter-spacing: 1px; }
-                            .kop-surat p { margin: 2px 0; font-size: 10pt; }
+                            
+                            /* Ubah styling kop surat */
+                            .kop-surat-table { width: 100%; border-bottom: 3px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+                            .kop-surat-table td { border: none; vertical-align: middle; padding: 0; }
+                            .kop-surat-teks { text-align: center; }
+                            .kop-surat-teks h1 { margin: 0; font-size: 16pt; text-transform: uppercase; letter-spacing: 1px; }
+                            .kop-surat-teks p { margin: 2px 0; font-size: 10pt; }
+                            
                             .judul { text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 20px; text-transform: uppercase; }
-                            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
-                            th, td { border: 1px solid #000; padding: 8px; vertical-align: top; }
-                            th { background-color: #e5e7eb; text-align: center; font-weight: bold; }
+                            .tabel-data { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
+                            .tabel-data th, .tabel-data td { border: 1px solid #000; padding: 8px; vertical-align: top; }
+                            .tabel-data th { background-color: #e5e7eb; text-align: center; font-weight: bold; }
                             .text-right { text-align: right; }
                             .text-center { text-align: center; }
                             .footer { margin-top: 40px; width: 100%; }
@@ -214,18 +226,25 @@ class ReportGenerator extends Page
                         </style>
                     </head>
                     <body>
-                        <div class="kop-surat">
-                            <h1>UNIVERSITAS STELLA MARIS (UNMARIS)</h1>
-                            <p>Jl. Karya Kasih No. 5, Tambolaka – Kab. Sumba Barat Daya</p>
-                            <p>Email: rektorat@unmarissumba.ac.id | Telp: (021) 1234567</p>
-                        </div>
+                       <table class="kop-surat-table">
+                            <tr>
+                                <td width="15%" class="text-center">
+                                    ' . ($logoBase64 ? '<img src="' . $logoBase64 . '" width="90">' : '') . '
+                                </td>
+                                <td width="85%" class="kop-surat-teks">
+                                    <h1>UNIVERSITAS STELLA MARIS (UNMARIS)</h1>
+                                    <p>Jl. Karya Kasih No. 5, Tambolaka Kab. Sumba Barat Daya</p>
+                                    <p>Email: rektorat@unmarissumba.ac.id | Telp: (021) 1234567</p>
+                                </td>
+                            </tr>
+                        </table>
                         
                         <div class="judul">
                             REKAPITULASI ASET TETAP (INVENTARIS KAMPUS)
                             ' . $htmlPeriode . '
                             <br><span style="font-size: 10pt; font-weight: normal;">Dicetak pada: ' . now()->translatedFormat('d F Y H:i') . '</span>
                         </div>
-                        <table>
+                       <table class="tabel-data">
                             <thead>
                                 <tr>
                                     <th width="5%">No</th>
@@ -276,9 +295,9 @@ class ReportGenerator extends Page
                         <div class="footer">
                             <div class="ttd-box">
                                 <p>Disahkan di Tempat,<br>' . now()->translatedFormat('d F Y') . '</p>
-                                <p>Kepala Biro Administrasi Umum,</p>
+                                <p>Kepala Kerumahtanggaan,</p>
                                 <br><br><br><br>
-                                <p><b>_________________________</b><br>NIP.</p>
+                                <p><b>Piter Bulu Moto Ghunu,S.Kom</b><br></p>
                             </div>
                             <div class="clear"></div>
                         </div>
