@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset()
             ->profile(AuthEditProfile::class)
             ->colors([
                 'primary' => Color::Amber, // Biru Dongker Logo

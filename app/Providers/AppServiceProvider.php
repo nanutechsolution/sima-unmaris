@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\ServiceProvider;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -31,6 +33,15 @@ class AppServiceProvider extends ServiceProvider
         // Ini memastikan Super Admin selalu bisa melewati semua halangan (kecuali yang kita hardcode false di Policy)
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
+        });
+
+        // 3. Reset password via email -> invalidate semua session aktif (logout dari semua device)
+        Event::listen(\Illuminate\Auth\Events\PasswordReset::class, function ($event) {
+            try {
+                DB::table('sessions')->where('user_id', $event->user->id)->delete();
+            } catch (\Throwable $e) {
+                // Tabel sessions mungkin belum ada / driver berbeda; tidak fatal.
+            }
         });
     }
 }
