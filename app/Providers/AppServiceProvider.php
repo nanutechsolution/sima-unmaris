@@ -6,7 +6,7 @@ use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\ServiceProvider;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
