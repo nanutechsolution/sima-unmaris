@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\Locations\RelationManagers;
+namespace App\Filament\Resources\Locations\RelationManager;
 
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Enums\AssetStatusEnum;
 use App\Enums\AssetConditionEnum;
 use Filament\Actions\ViewAction;
+use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Database\Eloquent\Builder;
 
 class AssetsRelationManager extends RelationManager
