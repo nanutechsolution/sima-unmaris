@@ -38,10 +38,10 @@ class GlobalAuditTrail extends Page implements HasTable
      * Memastikan hanya user yang punya permission yang bisa mengakses halaman ini.
      * Biasanya diizinkan untuk 'view_audit_trail' (Super Admin / Auditor)
      */
-    public static function canAccess(): bool
-    {
-        return auth()->user()?->can('view_any_system_audit_logs');
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return auth()->user()?->can('view_any_system_audit_logs');
+    // }
     public function table(Table $table): Table
     {
         return $table
