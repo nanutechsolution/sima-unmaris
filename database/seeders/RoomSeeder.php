@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Location;
+use App\Models\Room;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use App\Models\Room;
-use App\Models\Location;
 
 class RoomSeeder extends Seeder
 {
@@ -13,8 +13,9 @@ class RoomSeeder extends Seeder
     {
         $location = Location::first();
 
-        if (!$location) {
+        if (! $location) {
             $this->command->warn('Location belum ada');
+
             return;
         }
 

@@ -38,7 +38,7 @@ class AssetForm
                                 ->afterStateUpdated(function ($state, Set $set) {
                                     $category = Category::find($state);
 
-                                    if (!$category) {
+                                    if (! $category) {
                                         return;
                                     }
 
@@ -52,10 +52,10 @@ class AssetForm
 
                                     if ($lastAsset) {
                                         preg_match('/(\d+)$/', $lastAsset->asset_code, $match);
-                                        $number = isset($match[1]) ? ((int)$match[1] + 1) : 1;
+                                        $number = isset($match[1]) ? ((int) $match[1] + 1) : 1;
                                     }
 
-                                    $code = $prefix . '-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+                                    $code = $prefix.'-'.str_pad($number, 3, '0', STR_PAD_LEFT);
 
                                     $set('asset_code', $code);
                                 })
@@ -74,8 +74,6 @@ class AssetForm
                                 ->maxLength(200)
                                 ->columnSpan(8),
 
-
-
                         ]),
 
                     ]),
@@ -92,7 +90,7 @@ class AssetForm
                                 ->relationship(
                                     'room',
                                     'name',
-                                    fn($query) => $query->whereNull('deleted_at') // Memastikan hanya mengambil yang belum dihapus
+                                    fn ($query) => $query->whereNull('deleted_at') // Memastikan hanya mengambil yang belum dihapus
                                 )
                                 ->searchable()
                                 ->preload()

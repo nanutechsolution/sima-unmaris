@@ -3,15 +3,15 @@
 namespace App\Filament\Resources\Assets\RelationManagers;
 
 use Filament\Actions\ViewAction;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Grid as ComponentsGrid;
 use Filament\Schemas\Components\Group as ComponentsGroup;
 use Filament\Schemas\Components\Section as ComponentsSection;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class HandoversRelationManager extends RelationManager
 {
@@ -31,7 +31,7 @@ class HandoversRelationManager extends RelationManager
 
                 TextColumn::make('giver.name')
                     ->label('Pihak Pemberi')
-                    ->description(fn($record) => 'Oleh: ' . ($record->giver?->name ?? 'Sistem')),
+                    ->description(fn ($record) => 'Oleh: '.($record->giver?->name ?? 'Sistem')),
 
                 TextColumn::make('receiver.name')
                     ->label('Pihak Penerima')
@@ -115,7 +115,7 @@ class HandoversRelationManager extends RelationManager
     }
 
     /**
-     * Karena kita sudah mendefinisikan schema di dalam Action, 
+     * Karena kita sudah mendefinisikan schema di dalam Action,
      * kita tidak memerlukan method infolist() terpisah di class ini.
      */
     public function isReadOnly(): bool

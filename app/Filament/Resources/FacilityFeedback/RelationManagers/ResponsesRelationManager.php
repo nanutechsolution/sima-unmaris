@@ -7,11 +7,11 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -23,7 +23,7 @@ class ResponsesRelationManager extends RelationManager
     protected static string $relationship = 'responses';
 
     protected static ?string $title = 'Hasil & Respon Survei';
-    
+
     // protected static ?string $icon = 'heroicon-o-chat-bubble-bottom-center-text';
 
     /**
@@ -63,7 +63,7 @@ class ResponsesRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-              Action::make('export_responses')
+                Action::make('export_responses')
                     ->label('Ekspor ke Excel (CSV)')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
@@ -71,7 +71,7 @@ class ResponsesRelationManager extends RelationManager
                         // 1. Ambil Data Induk (Template Survei)
                         $survey = $this->getOwnerRecord();
                         $schema = $survey->form_schema ?? [];
-                        
+
                         // 2. Ambil Semua Jawaban yang sudah masuk
                         $responses = $survey->responses()->latest()->get();
 
@@ -81,24 +81,25 @@ class ResponsesRelationManager extends RelationManager
                                 ->body('Belum ada respon yang masuk untuk survei ini.')
                                 ->danger()
                                 ->send();
+
                             return;
                         }
 
                         // 3. Siapkan Header (Judul Kolom)
                         $headers = ['Waktu Masuk', 'Nama Responden', 'Tipe Responden'];
                         foreach ($schema as $index => $field) {
-                            $headers[] = $field['data']['question'] ?? 'Pertanyaan ' . ($index + 1);
+                            $headers[] = $field['data']['question'] ?? 'Pertanyaan '.($index + 1);
                         }
 
                         // 4. Proses Pembuatan File CSV (Excel Compatible)
-                        $fileName = 'Hasil_Survei_' . Str::slug($survey->title) . '_' . date('Ymd_His') . '.csv';
-                        
-                        $callback = function() use ($responses, $headers, $schema) {
+                        $fileName = 'Hasil_Survei_'.Str::slug($survey->title).'_'.date('Ymd_His').'.csv';
+
+                        $callback = function () use ($responses, $headers, $schema) {
                             $file = fopen('php://output', 'w');
-                            
+
                             // Tambahkan BOM untuk UTF-8 agar karakter spesial/emoji terbaca benar di Excel
-                            fputs($file, "\xEF\xBB\xBF");
-                            
+                            fwrite($file, "\xEF\xBB\xBF");
+
                             // Tulis Header
                             fputcsv($file, $headers);
 
@@ -113,14 +114,14 @@ class ResponsesRelationManager extends RelationManager
 
                                 // Petakan jawaban sesuai urutan pertanyaan di schema
                                 foreach ($schema as $index => $field) {
-                                    $answerKey = 'answer_' . $index;
+                                    $answerKey = 'answer_'.$index;
                                     $val = $answers[$answerKey] ?? '-';
-                                    
+
                                     // Rapikan format jika jawaban berupa array (pilihan ganda)
                                     if (is_array($val)) {
                                         $val = implode(', ', $val);
                                     }
-                                    
+
                                     $data[] = $val;
                                 }
 
@@ -131,7 +132,7 @@ class ResponsesRelationManager extends RelationManager
 
                         return response()->streamDownload($callback, $fileName, [
                             'Content-Type' => 'text/csv',
-                            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
                         ]);
                     }),
             ])
@@ -147,7 +148,7 @@ class ResponsesRelationManager extends RelationManager
                     ->icon('heroicon-m-eye')
                     ->color('primary')
                     ->infolist(
-                        fn($infolist) => $infolist
+                        fn ($infolist) => $infolist
                             ->schema([
                                 Section::make('Identitas Responden')
                                     ->description('Data profil pengisi formulir survei.')
@@ -182,20 +183,20 @@ class ResponsesRelationManager extends RelationManager
                                         foreach ($surveySchema as $index => $field) {
                                             $type = $field['type'] ?? 'text';
                                             $data = $field['data'] ?? [];
-                                            $question = $data['question'] ?? 'Pertanyaan ' . ($index + 1);
+                                            $question = $data['question'] ?? 'Pertanyaan '.($index + 1);
 
-                                            $answerKey = 'answer_' . $index;
+                                            $answerKey = 'answer_'.$index;
                                             $answerValue = $answers[$answerKey] ?? null;
 
                                             // Transformasi nilai jawaban untuk visualisasi
                                             $displayValue = match (true) {
                                                 empty($answerValue) => '-',
-                                                $type === 'rating' => str_repeat('⭐', (int)$answerValue) . " ({$answerValue}/5)",
+                                                $type === 'rating' => str_repeat('⭐', (int) $answerValue)." ({$answerValue}/5)",
                                                 is_array($answerValue) => implode(', ', $answerValue),
                                                 default => $answerValue,
                                             };
 
-                                            $components[] = TextEntry::make('dynamic_' . $answerKey)
+                                            $components[] = TextEntry::make('dynamic_'.$answerKey)
                                                 ->label($question)
                                                 ->state($displayValue)
                                                 ->placeholder('Tidak ada jawaban');

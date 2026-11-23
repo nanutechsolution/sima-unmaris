@@ -2,15 +2,12 @@
 
 namespace App\Filament\Resources\Locations\RelationManager;
 
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Tables;
-use Filament\Tables\Table;
-use App\Enums\AssetStatusEnum;
 use App\Enums\AssetConditionEnum;
+use App\Enums\AssetStatusEnum;
 use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class AssetsRelationManager extends RelationManager
 {
@@ -18,7 +15,6 @@ class AssetsRelationManager extends RelationManager
     protected static string $relationship = 'assets';
 
     protected static ?string $title = 'Inventaris Aset di Lokasi Ini';
-    
 
     public function table(Table $table): Table
     {
@@ -30,7 +26,7 @@ class AssetsRelationManager extends RelationManager
                     ->copyable()
                     ->fontFamily('mono')
                     ->weight('bold'),
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Barang')
                     ->searchable(),

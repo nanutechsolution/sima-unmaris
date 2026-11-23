@@ -10,25 +10,25 @@ return new class extends Migration
     {
         Schema::create('facility_feedbacks', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            
+
             // Kategori fasilitas yang dinilai (Cth: WiFi, Kebersihan, Keamanan, Pelayanan)
-            $table->string('category')->index(); 
-            
+            $table->string('category')->index();
+
             // Bintang kepuasan (1 sampai 5)
-            $table->tinyInteger('rating'); 
-            
+            $table->tinyInteger('rating');
+
             // Komentar atau saran detail
             $table->text('comments')->nullable();
-            
+
             // Identitas pelapor (Bisa dikosongkan jika ingin anonim)
             $table->string('reporter_name')->nullable();
-            
+
             // Jenis pelapor: Mahasiswa, Dosen, Staf, Tamu
-            $table->string('reporter_type')->nullable(); 
-            
+            $table->string('reporter_type')->nullable();
+
             // Status tindak lanjut oleh pihak kampus
             $table->string('status')->default('unread'); // unread, reviewed, followed_up
-            
+
             $table->timestamps();
             $table->softDeletes();
         });

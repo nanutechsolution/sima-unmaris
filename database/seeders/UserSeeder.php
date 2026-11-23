@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
         User::create([
             'id' => Str::uuid(),
             'name' => 'Admin Aset',
-            'email' => 'admin@unmarissumba.ac.id',
+            'email' => 'admin@unmaris.ac.id',
             'password' => Hash::make('password'),
         ]);
 

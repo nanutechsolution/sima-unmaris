@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Models\Asset;
 use App\Models\AssetHandover;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class AssetHandoverService
 {
@@ -40,7 +40,7 @@ class AssetHandoverService
                     'asset_photo_path' => $assetPhotoPath,       // Langsung simpan path dari Filament
                     'document_photo_path' => $documentPhotoPath, // Langsung simpan path dari Filament
                     'notes' => $notes,
-                    'digital_signature_hash' => hash('sha256', $asset->id . $receiverUserId . now()->timestamp),
+                    'digital_signature_hash' => hash('sha256', $asset->id.$receiverUserId.now()->timestamp),
                 ]);
 
                 // 2. Update Status dan Penanggung Jawab di Master Asset
@@ -52,7 +52,7 @@ class AssetHandoverService
                 return $handover;
 
             } catch (Exception $e) {
-                Log::error('Asset Handover Failed: ' . $e->getMessage(), [
+                Log::error('Asset Handover Failed: '.$e->getMessage(), [
                     'asset_id' => $asset->id,
                     'receiver_id' => $receiverUserId,
                 ]);

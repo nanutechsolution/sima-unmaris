@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\FacilityFeedback;
 use App\Models\SurveyResponse;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class SurveySeeder extends Seeder
 {
@@ -23,8 +23,8 @@ class SurveySeeder extends Seeder
                 'schema' => [
                     ['type' => 'rating', 'question' => 'Kecepatan internet wifi di area Lab?'],
                     ['type' => 'select', 'question' => 'Kondisi PC saat digunakan?', 'options' => ['Sangat Baik', 'Normal', 'Sering Lag', 'Rusak']],
-                    ['type' => 'textarea', 'question' => 'Saran spesifik untuk Lab IT?']
-                ]
+                    ['type' => 'textarea', 'question' => 'Saran spesifik untuk Lab IT?'],
+                ],
             ],
             [
                 'title' => 'Survei Kebersihan Gedung & Fasilitas Umum',
@@ -33,8 +33,8 @@ class SurveySeeder extends Seeder
                 'schema' => [
                     ['type' => 'rating', 'question' => 'Kebersihan toilet Gedung Rektorat?'],
                     ['type' => 'rating', 'question' => 'Kesejukan AC di ruang kelas?'],
-                    ['type' => 'text', 'question' => 'Area yang menurut Anda paling kotor?']
-                ]
+                    ['type' => 'text', 'question' => 'Area yang menurut Anda paling kotor?'],
+                ],
             ],
             [
                 'title' => 'Layanan Keamanan & Area Parkir',
@@ -43,8 +43,8 @@ class SurveySeeder extends Seeder
                 'schema' => [
                     ['type' => 'rating', 'question' => 'Keramahan petugas keamanan (Satpam)?'],
                     ['type' => 'select', 'question' => 'Kemudahan mencari slot parkir?', 'options' => ['Mudah', 'Cukup Sulit', 'Sangat Penuh']],
-                    ['type' => 'rating', 'question' => 'Rasa aman meninggalkan helm di motor?']
-                ]
+                    ['type' => 'rating', 'question' => 'Rasa aman meninggalkan helm di motor?'],
+                ],
             ],
             [
                 'title' => 'DRAFT: Survei Kantin Sehat',
@@ -52,9 +52,9 @@ class SurveySeeder extends Seeder
                 'status' => 'draft',
                 'schema' => [
                     ['type' => 'rating', 'question' => 'Harga makanan dibanding porsi?'],
-                    ['type' => 'rating', 'question' => 'Kebersihan peralatan makan?']
-                ]
-            ]
+                    ['type' => 'rating', 'question' => 'Kebersihan peralatan makan?'],
+                ],
+            ],
         ];
 
         $responderTypes = ['Mahasiswa', 'Dosen', 'Staf/Tendik', 'Tamu'];
@@ -67,12 +67,13 @@ class SurveySeeder extends Seeder
                     'type' => $item['type'],
                     'data' => [
                         'question' => $item['question'],
-                        'is_required' => true
-                    ]
+                        'is_required' => true,
+                    ],
                 ];
                 if (isset($item['options'])) {
                     $base['data']['options'] = $item['options'];
                 }
+
                 return $base;
             })->toArray();
 
@@ -90,13 +91,13 @@ class SurveySeeder extends Seeder
                 for ($i = 0; $i < $responseCount; $i++) {
                     $answers = [];
                     foreach ($formSchema as $index => $field) {
-                        $key = 'answer_' . $index;
-                        
-                        $answers[$key] = match($field['type']) {
+                        $key = 'answer_'.$index;
+
+                        $answers[$key] = match ($field['type']) {
                             'rating' => rand(2, 5), // Kebanyakan puas (2-5 bintang)
                             'select' => $field['data']['options'][rand(0, count($field['data']['options']) - 1)],
-                            'text' => 'Contoh temuan lapangan ke-' . ($i + 1),
-                            'textarea' => 'Saran perbaikan untuk ' . $survey->title . ' agar lebih baik lagi di masa depan.',
+                            'text' => 'Contoh temuan lapangan ke-'.($i + 1),
+                            'textarea' => 'Saran perbaikan untuk '.$survey->title.' agar lebih baik lagi di masa depan.',
                             default => null
                         };
                     }

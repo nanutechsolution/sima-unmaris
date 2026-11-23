@@ -28,7 +28,7 @@ return new class extends Migration
 
         /**
          * 3. PERBAIKAN SANCTUM (CRITICAL)
-         * Mengubah kolom tokenable_id pada tabel personal_access_tokens 
+         * Mengubah kolom tokenable_id pada tabel personal_access_tokens
          * dari BigInt menjadi UUID agar sinkron dengan tabel users.
          */
         if (Schema::hasTable('personal_access_tokens')) {

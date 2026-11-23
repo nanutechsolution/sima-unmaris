@@ -25,7 +25,7 @@ class MaintenanceLogsTable
 
                 TextColumn::make('asset.name')
                     ->label('Aset')
-                    ->description(fn($record) => $record->asset?->asset_code)
+                    ->description(fn ($record) => $record->asset?->asset_code)
                     ->searchable()
                     ->sortable(),
 
@@ -42,13 +42,13 @@ class MaintenanceLogsTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'scheduled' => 'gray',
                         'in_progress' => 'warning',
                         'completed' => 'success',
                         default => 'primary',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'scheduled' => 'Terjadwal',
                         'in_progress' => 'Proses',
                         'completed' => 'Selesai',

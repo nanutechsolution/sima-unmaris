@@ -7,15 +7,15 @@ use App\Enums\AssetStatusEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Asset extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, LogsActivity;
+    use HasFactory, HasUuids, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'asset_code',
@@ -44,7 +44,7 @@ class Asset extends Model
             ->logFillable() // Log semua field fillable yang berubah
             ->logOnlyDirty() // Hanya log jika ada perubahan (hemat storage)
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => "Aset telah di-{$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => "Aset telah di-{$eventName}");
     }
 
     // --- RELATIONS ---
@@ -82,6 +82,7 @@ class Asset extends Model
     {
         return $this->hasMany(MaintenanceLog::class)->orderBy('maintenance_date', 'desc');
     }
+
     public function loans()
     {
         return $this->hasMany(AssetLoan::class)->orderBy('loan_date', 'desc');
@@ -90,7 +91,7 @@ class Asset extends Model
     public function getCurrentValueAttribute()
     {
         // Jika tidak ada harga beli atau tanggal beli, kembalikan harga aslinya/0
-        if (!$this->acquisition_value || !$this->acquisition_date || !$this->useful_life_years) {
+        if (! $this->acquisition_value || ! $this->acquisition_date || ! $this->useful_life_years) {
             return $this->acquisition_value ?? 0;
         }
 

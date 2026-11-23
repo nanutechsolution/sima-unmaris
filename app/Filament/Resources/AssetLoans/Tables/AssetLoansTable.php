@@ -22,7 +22,7 @@ class AssetLoansTable
             ->columns([
                 TextColumn::make('asset.name')
                     ->label('Nama Aset')
-                    ->description(fn($record) => $record->asset?->asset_code)
+                    ->description(fn ($record) => $record->asset?->asset_code)
                     ->searchable()
                     ->weight('bold'),
 
@@ -40,16 +40,21 @@ class AssetLoansTable
                     ->label('Status')
                     ->badge()
                     ->getStateUsing(function (AssetLoan $record) {
-                        if ($record->actual_return_date) return 'returned';
-                        if ($record->expected_return_date < now()) return 'overdue';
+                        if ($record->actual_return_date) {
+                            return 'returned';
+                        }
+                        if ($record->expected_return_date < now()) {
+                            return 'overdue';
+                        }
+
                         return 'borrowed';
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'returned' => 'Selesai (Dikembalikan)',
                         'overdue' => 'Terlambat (Overdue)',
                         'borrowed' => 'Sedang Dipinjam',
                     })
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'returned' => 'success',
                         'overdue' => 'danger',
                         'borrowed' => 'warning',
@@ -97,28 +102,28 @@ class AssetLoansTable
                             <div class="judul">BERITA ACARA SERAH TERIMA (BAST) PEMINJAMAN BARANG</div>
                             
                             <div class="content">
-                                <p>Pada hari ini, tanggal <b>' . \Carbon\Carbon::parse($record->loan_date)->translatedFormat('d F Y') . '</b>, telah dilakukan serah terima peminjaman barang inventaris kampus dengan rincian sebagai berikut:</p>
+                                <p>Pada hari ini, tanggal <b>'.\Carbon\Carbon::parse($record->loan_date)->translatedFormat('d F Y').'</b>, telah dilakukan serah terima peminjaman barang inventaris kampus dengan rincian sebagai berikut:</p>
                                 
                                 <table class="detail">
                                     <tr>
                                         <th width="30%">Kode Aset</th>
-                                        <td>' . $record->asset->asset_code . '</td>
+                                        <td>'.$record->asset->asset_code.'</td>
                                     </tr>
                                     <tr>
                                         <th>Nama Barang</th>
-                                        <td>' . $record->asset->name . '</td>
+                                        <td>'.$record->asset->name.'</td>
                                     </tr>
                                     <tr>
                                         <th>Tanggal Peminjaman</th>
-                                        <td>' . \Carbon\Carbon::parse($record->loan_date)->translatedFormat('d F Y H:i') . '</td>
+                                        <td>'.\Carbon\Carbon::parse($record->loan_date)->translatedFormat('d F Y H:i').'</td>
                                     </tr>
                                     <tr>
                                         <th>Batas Waktu Pengembalian</th>
-                                        <td>' . \Carbon\Carbon::parse($record->expected_return_date)->translatedFormat('d F Y H:i') . '</td>
+                                        <td>'.\Carbon\Carbon::parse($record->expected_return_date)->translatedFormat('d F Y H:i').'</td>
                                     </tr>
                                     <tr>
                                         <th>Tujuan Peminjaman</th>
-                                        <td>' . ($record->notes ?? 'Keperluan Akademik / Operasional') . '</td>
+                                        <td>'.($record->notes ?? 'Keperluan Akademik / Operasional').'</td>
                                     </tr>
                                 </table>
                                 
@@ -136,7 +141,7 @@ class AssetLoansTable
                                     <p>Pihak Kedua (Yang Menerima),</p>
                                     <p>Peminjam / Penanggung Jawab</p>
                                     <div class="ttd-space"></div>
-                                    <p><b>' . strtoupper($record->borrower->name) . '</b></p>
+                                    <p><b>'.strtoupper($record->borrower->name).'</b></p>
                                 </div>
                             </div>
                         </body>
@@ -147,12 +152,12 @@ class AssetLoansTable
                         $pdf = Pdf::loadHTML($html);
 
                         // Download File
-                        $filename = 'BAST_Peminjaman_' . $record->asset->asset_code . '.pdf';
+                        $filename = 'BAST_Peminjaman_'.$record->asset->asset_code.'.pdf';
                         // Replace slashes and backslashes with underscores
                         $filename = str_replace(['/', '\\'], '_', $filename);
 
                         return response()->streamDownload(
-                            fn() => print($pdf->output()),
+                            fn () => print ($pdf->output()),
                             $filename
                         );
                     }),
@@ -165,7 +170,7 @@ class AssetLoansTable
                     ->modalDescription('Apakah aset ini sudah diterima kembali dalam kondisi baik?')
                     ->modalSubmitActionLabel('Ya, Sudah Dikembalikan')
                     // Tombol ini akan otomatis Sembunyi jika barang sudah dikembalikan
-                    ->visible(fn(AssetLoan $record) => is_null($record->actual_return_date))
+                    ->visible(fn (AssetLoan $record) => is_null($record->actual_return_date))
                     ->action(function (AssetLoan $record) {
                         // 1. Catat waktu kembali aktual
                         $record->update(['actual_return_date' => now()]);

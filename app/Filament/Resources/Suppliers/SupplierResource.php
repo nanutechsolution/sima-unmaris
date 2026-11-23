@@ -9,10 +9,8 @@ use App\Filament\Resources\Suppliers\Pages\ListSuppliers;
 use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Filament\Resources\Suppliers\Tables\SuppliersTable;
 use App\Models\Supplier;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -20,14 +18,18 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SupplierResource extends Resource
 {
     protected static ?string $model = Supplier::class;
- 
 
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'Mitra / Supplier';
+
     protected static ?string $pluralModelLabel = 'Mitra / Supplier';
+
     protected static ?string $navigationLabel = 'Mitra / Supplier';
-     // Kelompokkan ke dalam Master Data Kampus
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::MASTER_DATA->value;
+
+    // Kelompokkan ke dalam Master Data Kampus
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::MASTER_DATA->value;
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema

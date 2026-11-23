@@ -9,21 +9,21 @@ use App\Filament\Resources\InventoryItems\Pages\ListInventoryItems;
 use App\Filament\Resources\InventoryItems\Schemas\InventoryItemForm;
 use App\Filament\Resources\InventoryItems\Tables\InventoryItemsTable;
 use App\Models\InventoryItem;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class InventoryItemResource extends Resource
 {
     protected static ?string $model = InventoryItem::class;
+
     protected static ?string $modelLabel = 'Stok ATK / Barang Habis Pakai';
+
     protected static ?string $pluralModelLabel = 'Katalog & Stok ATK';
 
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::INVENTORY_ATK->value;
-    protected static ?int $navigationSort = 1;
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::INVENTORY_ATK->value;
 
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

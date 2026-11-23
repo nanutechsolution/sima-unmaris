@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
+use App\Services\ApplicationSettings;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -43,5 +45,8 @@ class AppServiceProvider extends ServiceProvider
                 // Tabel sessions mungkin belum ada / driver berbeda; tidak fatal.
             }
         });
+
+        // 4. Share ApplicationSettings (dengan cache) ke seluruh view
+        View::share('appSettings', app(ApplicationSettings::class));
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $survey->title }} - Universitas Stella Maris</title>
+    <title>{{ $survey->title }} - {{ $appSettings->getInstitutionName() }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .rating-btn.active svg { color: #eab308; fill: #eab308; }
@@ -118,7 +118,7 @@
         </div>
         
         <div class="text-center pb-6">
-            <p class="text-xs text-gray-400">&copy; {{ date('Y') }} Sistem Survei - Universitas Stella Maris</p>
+            <p class="text-xs text-gray-400">&copy; {{ date('Y') }} Sistem Survei - {{ $appSettings->getInstitutionName() }}</p>
         </div>
     </div>
 

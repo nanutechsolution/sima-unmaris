@@ -12,7 +12,7 @@ enum NavigationGroupEnum: string
 
     /**
      * Mendapatkan label string untuk Filament.
-     * Penggunaan di Resource: 
+     * Penggunaan di Resource:
      * protected static ?string $navigationGroup = NavigationGroupEnum::MASTER_DATA->value;
      */
     public function getLabel(): string

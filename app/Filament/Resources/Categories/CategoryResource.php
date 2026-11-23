@@ -19,12 +19,16 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'Kategori';
+
     protected static ?string $pluralModelLabel = 'Kategori';
+
     protected static ?string $navigationLabel = 'Kategori';
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::MASTER_DATA->value;
+
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::MASTER_DATA->value;
+
     protected static ?int $navigationSort = 1;
     // icon
 

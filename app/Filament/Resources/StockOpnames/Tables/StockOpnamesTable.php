@@ -32,12 +32,12 @@ class StockOpnamesTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'in_progress' => 'warning',
                         'completed' => 'success',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'in_progress' => 'Berjalan',
                         'completed' => 'Selesai',
                         default => $state,

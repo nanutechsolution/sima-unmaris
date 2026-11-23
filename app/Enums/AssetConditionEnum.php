@@ -5,8 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-
-enum AssetConditionEnum: string implements HasLabel, HasColor
+enum AssetConditionEnum: string implements HasColor, HasLabel
 {
     case GOOD = 'good';
     case FAIR = 'fair';

@@ -3,26 +3,31 @@
 namespace App\Filament\Pages;
 
 use App\Enums\NavigationGroupEnum;
-use Filament\Pages\Page;
-use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
-use App\Models\Location;
 use App\Models\Asset;
+use App\Models\Location;
 use App\Models\Room;
 use Barryvdh\DomPDF\Facade\Pdf;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
+use Filament\Pages\Page;
 use Filament\Schemas\Components\Utilities\Get;
 
 class ReportGenerator extends Page
 {
     use HasPageShield;
+
     protected static ?string $modelLabel = 'Generator Laporan';
+
     protected static ?string $title = 'Laporan Akreditasi & Keuangan';
+
     protected static ?string $slug = 'report-generator';
+
     // Masukkan ke grup Sistem & Audit
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::SYSTEM_AUDIT->value;
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::SYSTEM_AUDIT->value;
+
     protected static ?int $navigationSort = 5; // Taruh paling bawah
 
     protected string $view = 'filament.pages.report-generator';
@@ -61,6 +66,7 @@ class ReportGenerator extends Page
                             if ($locationId) {
                                 return Room::where('location_id', $locationId)->pluck('name', 'id');
                             }
+
                             // Jika tidak ada lokasi yang dipilih, tampilkan semua ruangan
                             return Room::pluck('name', 'id');
                         })
@@ -87,34 +93,34 @@ class ReportGenerator extends Page
                     // 1. QUERY KOMPLEKS BERDASARKAN FILTER
                     $query = Asset::query()->with(['category', 'room.location', 'pic']);
 
-                    if (!empty($data['location_id'])) {
+                    if (! empty($data['location_id'])) {
                         $query->whereHas('room', function ($q) use ($data) {
                             $q->where('location_id', $data['location_id']);
                         });
                     }
-                    if (!empty($data['room_id'])) {
+                    if (! empty($data['room_id'])) {
                         $query->where('room_id', $data['room_id']);
                     }
-                    if (!empty($data['condition'])) {
+                    if (! empty($data['condition'])) {
                         $query->where('condition', $data['condition']);
                     }
-                    if (!empty($data['start_date'])) {
+                    if (! empty($data['start_date'])) {
                         $query->whereDate('acquisition_date', '>=', $data['start_date']);
                     }
-                    if (!empty($data['end_date'])) {
+                    if (! empty($data['end_date'])) {
                         $query->whereDate('acquisition_date', '<=', $data['end_date']);
                     }
 
                     $assets = $query->orderBy('acquisition_date', 'desc')->get();
                     $teksPeriode = '';
-                    if (!empty($data['start_date']) || !empty($data['end_date'])) {
-                        $startDate = !empty($data['start_date']) ? \Carbon\Carbon::parse($data['start_date'])->translatedFormat('d F Y') : 'Awal';
-                        $endDate = !empty($data['end_date']) ? \Carbon\Carbon::parse($data['end_date'])->translatedFormat('d F Y') : 'Sekarang';
-                        $teksPeriode = $startDate . ' s/d ' . $endDate;
+                    if (! empty($data['start_date']) || ! empty($data['end_date'])) {
+                        $startDate = ! empty($data['start_date']) ? \Carbon\Carbon::parse($data['start_date'])->translatedFormat('d F Y') : 'Awal';
+                        $endDate = ! empty($data['end_date']) ? \Carbon\Carbon::parse($data['end_date'])->translatedFormat('d F Y') : 'Sekarang';
+                        $teksPeriode = $startDate.' s/d '.$endDate;
                     }
                     if ($data['format'] === 'excel') {
-                        $fileName = 'Laporan_Aset_Kampus_' . date('Ymd_His') . '.xlsx';
-                        $filePath = storage_path('app/public/' . $fileName);
+                        $fileName = 'Laporan_Aset_Kampus_'.date('Ymd_His').'.xlsx';
+                        $filePath = storage_path('app/public/'.$fileName);
 
                         // Gunakan ->noHeaderRow() agar kita bisa menulis teks bebas di baris paling atas
                         $writer = \Spatie\SimpleExcel\SimpleExcelWriter::create($filePath)->noHeaderRow();
@@ -124,11 +130,11 @@ class ReportGenerator extends Page
                         $writer->addRow(['Dicetak pada:', now()->translatedFormat('d F Y H:i')]);
 
                         // Cek dan tulis rentang tanggal jika user mengisi filter tanggal
-                        if (!empty($data['start_date']) || !empty($data['end_date'])) {
-                            $startDate = !empty($data['start_date']) ? \Carbon\Carbon::parse($data['start_date'])->translatedFormat('d F Y') : 'Awal';
-                            $endDate = !empty($data['end_date']) ? \Carbon\Carbon::parse($data['end_date'])->translatedFormat('d F Y') : 'Sekarang';
+                        if (! empty($data['start_date']) || ! empty($data['end_date'])) {
+                            $startDate = ! empty($data['start_date']) ? \Carbon\Carbon::parse($data['start_date'])->translatedFormat('d F Y') : 'Awal';
+                            $endDate = ! empty($data['end_date']) ? \Carbon\Carbon::parse($data['end_date'])->translatedFormat('d F Y') : 'Sekarang';
 
-                            $writer->addRow(['Periode Pembelian:', $startDate . ' s/d ' . $endDate]);
+                            $writer->addRow(['Periode Pembelian:', $startDate.' s/d '.$endDate]);
                         }
 
                         // Tambahkan baris kosong sebagai jarak sebelum tabel
@@ -143,7 +149,7 @@ class ReportGenerator extends Page
                             'Lokasi / Ruang',
                             'Kondisi',
                             'Harga Beli (Rp)',
-                            'Nilai Buku (Rp)'
+                            'Nilai Buku (Rp)',
                         ]);
 
                         $totalHargaBeli = 0;
@@ -183,7 +189,7 @@ class ReportGenerator extends Page
                             '',
                             'TOTAL KESELURUHAN:',
                             $totalHargaBeli,
-                            $totalNilaiBuku
+                            $totalNilaiBuku,
                         ]);
 
                         $writer->close();
@@ -192,14 +198,14 @@ class ReportGenerator extends Page
                     }
                     $htmlPeriode = '';
                     if ($teksPeriode !== '') {
-                        $htmlPeriode = '<br><span style="font-size: 11pt; font-weight: normal;">Periode Pembelian: ' . $teksPeriode . '</span>';
+                        $htmlPeriode = '<br><span style="font-size: 11pt; font-weight: normal;">Periode Pembelian: '.$teksPeriode.'</span>';
                     }
-                    $pathLogo = public_path('images/logo-unmaris.png'); 
-                    
+                    $pathLogo = public_path('images/logo-unmaris.png');
+
                     $logoBase64 = '';
                     if (file_exists($pathLogo)) {
                         $logoData = base64_encode(file_get_contents($pathLogo));
-                        $logoBase64 = 'data:image/png;base64,' . $logoData;
+                        $logoBase64 = 'data:image/png;base64,'.$logoData;
                     }
                     $html = '
                     <html>
@@ -229,20 +235,20 @@ class ReportGenerator extends Page
                        <table class="kop-surat-table">
                             <tr>
                                 <td width="15%" class="text-center">
-                                    ' . ($logoBase64 ? '<img src="' . $logoBase64 . '" width="90">' : '') . '
+                                    '.($logoBase64 ? '<img src="'.$logoBase64.'" width="90">' : '').'
                                 </td>
                                 <td width="85%" class="kop-surat-teks">
                                     <h1>UNIVERSITAS STELLA MARIS (UNMARIS)</h1>
                                     <p>Jl. Karya Kasih No. 5, Tambolaka Kab. Sumba Barat Daya</p>
-                                    <p>Email: rektorat@unmarissumba.ac.id | Telp: (021) 1234567</p>
+                                    <p>Email: rektorat@unmaris.ac.id | Telp: (021) 1234567</p>
                                 </td>
                             </tr>
                         </table>
                         
                         <div class="judul">
                             REKAPITULASI ASET TETAP (INVENTARIS KAMPUS)
-                            ' . $htmlPeriode . '
-                            <br><span style="font-size: 10pt; font-weight: normal;">Dicetak pada: ' . now()->translatedFormat('d F Y H:i') . '</span>
+                            '.$htmlPeriode.'
+                            <br><span style="font-size: 10pt; font-weight: normal;">Dicetak pada: '.now()->translatedFormat('d F Y H:i').'</span>
                         </div>
                        <table class="tabel-data">
                             <thead>
@@ -271,13 +277,13 @@ class ReportGenerator extends Page
                         $totalNilaiBuku += $nilaiBuku;
 
                         $html .= '<tr>
-                            <td class="text-center">' . ($index + 1) . '</td>
-                            <td>' . $asset->asset_code . '</td>
-                            <td><b>' . $asset->name . '</b><br><span style="font-size:8pt; color:#666;">Kategori: ' . ($asset->category->name ?? '-') . '</span></td>
-                            <td>' . ($asset->room->name ?? '-') . '</td>
-                            <td class="text-center">' . $kondisiLabel . '</td>
-                            <td class="text-right">' . number_format($hargaBeli, 0, ',', '.') . '</td>
-                            <td class="text-right"><b>' . number_format($nilaiBuku, 0, ',', '.') . '</b></td>
+                            <td class="text-center">'.($index + 1).'</td>
+                            <td>'.$asset->asset_code.'</td>
+                            <td><b>'.$asset->name.'</b><br><span style="font-size:8pt; color:#666;">Kategori: '.($asset->category->name ?? '-').'</span></td>
+                            <td>'.($asset->room->name ?? '-').'</td>
+                            <td class="text-center">'.$kondisiLabel.'</td>
+                            <td class="text-right">'.number_format($hargaBeli, 0, ',', '.').'</td>
+                            <td class="text-right"><b>'.number_format($nilaiBuku, 0, ',', '.').'</b></td>
                         </tr>';
                     }
 
@@ -286,15 +292,15 @@ class ReportGenerator extends Page
                             <tfoot>
                                 <tr>
                                     <th colspan="5" class="text-right">TOTAL KESELURUHAN:</th>
-                                    <th class="text-right">' . number_format($totalHargaBeli, 0, ',', '.') . '</th>
-                                    <th class="text-right">' . number_format($totalNilaiBuku, 0, ',', '.') . '</th>
+                                    <th class="text-right">'.number_format($totalHargaBeli, 0, ',', '.').'</th>
+                                    <th class="text-right">'.number_format($totalNilaiBuku, 0, ',', '.').'</th>
                                 </tr>
                             </tfoot>
                         </table>
                         
                         <div class="footer">
                             <div class="ttd-box">
-                                <p>Disahkan di Tempat,<br>' . now()->translatedFormat('d F Y') . '</p>
+                                <p>Disahkan di Tempat,<br>'.now()->translatedFormat('d F Y').'</p>
                                 <p>Kepala Kerumahtanggaan,</p>
                                 <br><br><br><br>
                                 <p><b>Piter Bulu Moto Ghunu,S.Kom</b><br></p>
@@ -308,8 +314,8 @@ class ReportGenerator extends Page
                     $pdf = Pdf::loadHTML($html)->setPaper('A4', 'landscape');
 
                     return response()->streamDownload(
-                        fn() => print($pdf->output()),
-                        'Laporan_Akreditasi_Aset_' . date('Ymd_His') . '.pdf'
+                        fn () => print ($pdf->output()),
+                        'Laporan_Akreditasi_Aset_'.date('Ymd_His').'.pdf'
                     );
                 }),
         ];

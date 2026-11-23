@@ -22,7 +22,7 @@ class Location extends Model
     }
 
     public function assets()
-{
-    return $this->hasManyThrough(Asset::class, Room::class);
-}
+    {
+        return $this->hasManyThrough(Asset::class, Room::class);
+    }
 }

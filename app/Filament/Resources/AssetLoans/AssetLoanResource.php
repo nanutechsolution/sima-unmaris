@@ -9,10 +9,8 @@ use App\Filament\Resources\AssetLoans\Pages\ListAssetLoans;
 use App\Filament\Resources\AssetLoans\Schemas\AssetLoanForm;
 use App\Filament\Resources\AssetLoans\Tables\AssetLoansTable;
 use App\Models\AssetLoan;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -20,13 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class AssetLoanResource extends Resource
 {
     protected static ?string $model = AssetLoan::class;
+
     protected static ?string $modelLabel = 'Peminjaman Aset';
+
     protected static ?string $pluralModelLabel = 'Peminjaman Aset';
 
     // Gabungkan di dalam grup Manajemen Aset
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::ASSET_MANAGEMENT->value;
-    protected static ?int $navigationSort = 4;
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::ASSET_MANAGEMENT->value;
 
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'name';
 

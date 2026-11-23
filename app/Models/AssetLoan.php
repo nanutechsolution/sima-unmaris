@@ -19,7 +19,7 @@ class AssetLoan extends Model
     ];
 
     /**
-     * MAGIC HOOK: Otomatis ubah status aset menjadi "IN_USE" 
+     * MAGIC HOOK: Otomatis ubah status aset menjadi "IN_USE"
      * di database utama ketika proses peminjaman baru dibuat.
      */
     protected static function booted()

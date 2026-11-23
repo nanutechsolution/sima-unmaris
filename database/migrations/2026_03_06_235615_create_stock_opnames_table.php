@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('stock_opnames', function (Blueprint $table) {
+        Schema::create('stock_opnames', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title'); // Contoh: "Audit Semester Ganjil 2026"
             $table->date('start_date');

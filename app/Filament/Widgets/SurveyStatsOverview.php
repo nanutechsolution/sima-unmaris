@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\FacilityFeedback\Widgets;
+namespace App\Filament\Widgets;
 
 use App\Models\FacilityFeedback;
 use App\Models\SurveyResponse;
@@ -10,7 +10,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class SurveyStatsOverview extends BaseWidget
 {
-     use HasWidgetShield;
+    use HasWidgetShield;
+
     /**
      * Mengambil data statistik dari database untuk ditampilkan di dashboard survei.
      */

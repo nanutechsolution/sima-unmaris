@@ -12,15 +12,16 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class OverdueLoansWidget extends BaseWidget
 {
-     use HasWidgetShield;
+    use HasWidgetShield;
+
     // Judul mencolok dengan icon peringatan
     protected static ?string $heading = '🚨 Peminjaman Terlambat (Overdue)';
-    
+
     // Urutan ke-3 di Dashboard (Di bawah grafik)
     protected static ?int $sort = 3;
-    
+
     // Lebar tabel mengambil full screen
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -36,17 +37,17 @@ class OverdueLoansWidget extends BaseWidget
                     ->label('Nama Aset')
                     ->weight('bold')
                     ->description(fn ($record) => $record->asset?->asset_code),
-                    
+
                 Tables\Columns\TextColumn::make('borrower.name')
                     ->label('Peminjam / Penanggung Jawab')
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('expected_return_date')
                     ->label('Tenggat Waktu Kembali')
                     ->dateTime('d M Y - H:i')
                     ->color('danger')
                     ->weight('bold'),
-                    
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->getStateUsing(fn () => 'Terlambat')

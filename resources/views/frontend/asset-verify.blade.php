@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Aset - UNMARIS</title>
+    <title>Verifikasi Aset - {{ $appSettings->getAppName() }}</title>
     <!-- Menggunakan Tailwind CSS CDN untuk kepraktisan halaman publik eksternal -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- logo -->
-    <link rel="icon" href="{{ asset('images/logo-unmaris.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ $appSettings->getFaviconUrl() }}" type="image/x-icon">
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased font-sans">
     <!-- Kontainer utama menyerupai layar HP -->
@@ -15,7 +15,7 @@
         
         <!-- Header Kampus -->
         <div class="bg-blue-800 text-white p-6 text-center shadow-md relative z-10">
-            <h1 class="text-3xl font-extrabold tracking-widest uppercase">Unmaris</h1>
+            <h1 class="text-3xl font-extrabold tracking-widest uppercase">{{ $appSettings->getAppName() }}</h1>
             <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Sistem Informasi Manajemen Aset</p>
         </div>
         
@@ -110,12 +110,14 @@
                 </div>
 
                 <!-- TOMBOL CROWDSOURCING LAPOR KERUSAKAN -->
-                <div class="pt-4">
-                    <a href="{{ route('asset.report', $asset->qr_signature_hash) }}" class="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 py-3 px-4 rounded-xl font-bold transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        Lapor Kendala / Kerusakan
-                    </a>
-                </div>
+                @if($asset->qr_signature_hash)
+                    <div class="pt-4">
+                        <a href="{{ route('asset.report', $asset->qr_signature_hash) }}" class="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 py-3 px-4 rounded-xl font-bold transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            Lapor Kendala / Kerusakan
+                        </a>
+                    </div>
+                @endif
 
             </div>
         </div>
@@ -123,7 +125,7 @@
         <!-- Footer Timestamp -->
         <div class="text-center pb-8 pt-2">
             <p class="text-xs font-medium text-gray-400">Pengecekan sistem pada: <br/> <span class="text-gray-500">{{ now()->translatedFormat('d F Y - H:i') }}</span></p>
-            <p class="text-xs text-gray-400 mt-3">&copy; {{ date('Y') }} Sistem Aset UNMARIS</p>
+            <p class="text-xs text-gray-400 mt-3">&copy; {{ date('Y') }} Sistem Aset {{ $appSettings->getAppName() }}</p>
         </div>
         
     </div>

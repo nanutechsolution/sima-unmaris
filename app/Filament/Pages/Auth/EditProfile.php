@@ -3,11 +3,11 @@
 namespace App\Filament\Pages\Auth;
 
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Model;
 
 class EditProfile extends BaseEditProfile
 {
@@ -15,7 +15,7 @@ class EditProfile extends BaseEditProfile
      * OVERRIDE: Memastikan sistem mengambil User Model yang tepat.
      * Ini mengatasi bug/konflik antara guard 'web' (Filament) dan 'sanctum' (React API).
      */
-    public function getUser(): Authenticatable & Model
+    public function getUser(): Authenticatable&Model
     {
         // 1. Coba ambil dari Filament, jika null, paksa ambil dari sistem auth bawaan Laravel
         $user = Filament::auth()->user() ?? auth('web')->user() ?? auth()->user();
@@ -44,7 +44,7 @@ class EditProfile extends BaseEditProfile
                     ->maxSize(2048)      // Maksimal 2MB
                     ->columnSpanFull()
                     ->alignCenter(),
-                    
+
                 // Mengambil komponen bawaan Filament sesuai core file Anda
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),

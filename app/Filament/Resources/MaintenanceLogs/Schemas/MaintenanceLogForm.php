@@ -5,8 +5,8 @@ namespace App\Filament\Resources\MaintenanceLogs\Schemas;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -20,7 +20,7 @@ class MaintenanceLogForm
                     ->schema([
                         Select::make('asset_id')
                             ->relationship('asset', 'name')
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->asset_code} - {$record->name}")
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->asset_code} - {$record->name}")
                             ->searchable()
                             ->preload()
                             ->required()

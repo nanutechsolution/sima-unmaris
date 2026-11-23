@@ -16,7 +16,7 @@ class InventoryTransaction extends Model
         // Pemicu otomatis saat transaksi baru dibuat
         static::created(function ($transaction) {
             $item = $transaction->item;
-            
+
             if ($transaction->type === 'in') {
                 $item->increment('current_stock', $transaction->quantity);
             } else {

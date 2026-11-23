@@ -3,23 +3,19 @@
 namespace App\Filament\Resources\Assets\RelationManagers;
 
 use Filament\Actions\ViewAction;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Infolists;
-use Filament\Infolists\Components\KeyValueEntry;
-use Filament\Infolists\Infolist;
-use Filament\Schemas\Components\Section;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ActivitiesRelationManager extends RelationManager
 {
     // Ini merujuk ke relasi polymorphic 'activities' bawaan Spatie Activitylog
     protected static string $relationship = 'activities';
+
     protected static ?string $title = 'Log Aktivitas & Audit Trail';
+
     public function table(Table $table): Table
     {
         return $table
@@ -29,13 +25,13 @@ class ActivitiesRelationManager extends RelationManager
                     ->label('Waktu Perubahan')
                     ->dateTime('d M Y - H:i:s')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('causer.name')
                     ->label('Aktor / User')
                     ->description(fn ($record) => $record->causer?->email) // Menampilkan email di bawah nama
                     ->searchable()
                     ->placeholder('Sistem / Anonymous'),
-                    
+
                 Tables\Columns\TextColumn::make('event')
                     ->label('Jenis Aksi')
                     ->badge()
@@ -53,7 +49,7 @@ class ActivitiesRelationManager extends RelationManager
                         'restored' => 'info',
                         default => 'gray',
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('description')
                     ->label('Deskripsi')
                     ->searchable(),
@@ -67,20 +63,20 @@ class ActivitiesRelationManager extends RelationManager
             ])
             ->actions([
                 // ACTION: Lihat detail perubahan (Before - After)
-              ViewAction::make()
+                ViewAction::make()
                     ->label('Lihat Detail')
                     ->color('primary')
                     ->modalHeading('Detail Perubahan Data (Audit Trail)')
                     ->infolist([
-                       Section::make('Komparasi Data')
+                        Section::make('Komparasi Data')
                             ->description('Menampilkan perbedaan data sebelum dan sesudah aksi dilakukan.')
                             ->schema([
-                               KeyValueEntry::make('properties.old')
+                                KeyValueEntry::make('properties.old')
                                     ->label('Data Lama (Sebelum)')
                                     ->keyLabel('Atribut')
                                     ->valueLabel('Nilai'),
-                                    
-                               KeyValueEntry::make('properties.attributes')
+
+                                KeyValueEntry::make('properties.attributes')
                                     ->label('Data Baru (Sesudah)')
                                     ->keyLabel('Atribut')
                                     ->valueLabel('Nilai'),

@@ -18,7 +18,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasRoles, HasApiTokens;
+    use HasApiTokens, HasFactory, HasRoles, HasUuids, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -60,10 +60,21 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     // --- FILAMENT AUTHORIZATION ---
     public function canAccessPanel(Panel $panel): bool
     {
-        // Contoh sederhana: hanya izinkan akses jika email pengguna terdaftar di database
-        // Anda dapat mengganti logika ini sesuai kebutuhan (misalnya, berdasarkan peran atau
-        // izin tertentu)
-        return true; // Ganti dengan logika otorisasi yang sesuai
+        $user = auth()->user();
+
+        // Tamu yang belum terautentikasi tidak boleh mengakses panel
+        if (! $user) {
+            return false;
+        }
+
+        // Hak akses diberikan berdasarkan peran (Super Admin, Staf Inventaris, & Auditor)
+        // Super Admin memiliki akses penuh tanpa batasan akses.
+        if ($user->hasRole('Super Admin')) {
+            return true;
+        }
+
+        // Staf Inventaris mengelola aset & inventaris, Auditor hanya membaca audit trail
+        return $user->hasRole(['Staf Inventaris', 'Auditor']);
     }
 
     public function getFilamentAvatarUrl(): ?string

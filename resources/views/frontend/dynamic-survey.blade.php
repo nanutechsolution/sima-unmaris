@@ -6,7 +6,7 @@
     <title>{{ $survey->title }} - Universitas Stella Maris</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- logo icon -->
-    <link rel="icon" href="{{ asset('images/logo-unmaris.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ $appSettings->getFaviconUrl() }}" type="image/x-icon">
     <style>
         .rating-btn.active svg { color: #eab308; fill: #eab308; }
         .rating-btn:hover svg { color: #facc15; }
@@ -132,7 +132,7 @@
         </div>
         
         <div class="text-center pb-6">
-            <p class="text-xs text-gray-400">&copy; {{ date('Y') }} UNMARIS - Biro Sarpras</p>
+            <p class="text-xs text-gray-400">&copy; {{ date('Y') }} {{ $appSettings->getAppName() }} - Biro Sarpras {{ $appSettings->getInstitutionName() }}</p>
         </div>
     </div>
 

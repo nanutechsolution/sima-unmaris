@@ -22,6 +22,7 @@ class ResetAdminPassword extends Command
 
         if (blank($email)) {
             $this->error('Opsi --email wajib diisi. Contoh: php artisan admin:password:reset --email=admin@example.com');
+
             return Command::FAILURE;
         }
 
@@ -29,6 +30,7 @@ class ResetAdminPassword extends Command
 
         if (blank($user)) {
             $this->error("Pengguna dengan email [{$email}] tidak ditemukan.");
+
             return Command::FAILURE;
         }
 

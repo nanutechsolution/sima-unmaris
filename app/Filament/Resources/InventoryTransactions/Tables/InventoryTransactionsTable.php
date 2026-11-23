@@ -21,17 +21,17 @@ class InventoryTransactionsTable
 
                 TextColumn::make('item.name')
                     ->label('Barang')
-                    ->description(fn($record) => "SKU: {$record->item->sku}"),
+                    ->description(fn ($record) => "SKU: {$record->item->sku}"),
 
                 TextColumn::make('type')
                     ->label('Tipe')
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'in' ? 'MASUK' : 'KELUAR')
-                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger'),
+                    ->formatStateUsing(fn ($state) => $state === 'in' ? 'MASUK' : 'KELUAR')
+                    ->color(fn ($state) => $state === 'in' ? 'success' : 'danger'),
 
                 TextColumn::make('quantity')
                     ->label('Jumlah')
-                    ->formatStateUsing(fn($state, $record) => "{$state} {$record->item->unit}"),
+                    ->formatStateUsing(fn ($state, $record) => "{$state} {$record->item->unit}"),
 
                 TextColumn::make('department.name')
                     ->label('Unit Peminta')

@@ -22,13 +22,12 @@ class FacilityFeedback extends Model
 
     /**
      * Konversi tipe data otomatis (Casting).
-     * Sangat penting untuk Filament Builder agar JSON dari database 
+     * Sangat penting untuk Filament Builder agar JSON dari database
      * dibaca sebagai Array di dalam aplikasi.
      */
     protected $casts = [
         'form_schema' => 'array',
     ];
-
 
     /**
      * Relasi ke SurveyResponse (jawaban survei).

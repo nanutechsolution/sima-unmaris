@@ -10,10 +10,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class AssetStatsOverview extends BaseWidget
 {
     use HasWidgetShield;
+
     // Judul utama untuk widget statistik aset
     // Mengatur urutan tampilan widget di atas
     protected static ?int $sort = 1;
-    
 
     protected function getStats(): array
     {
@@ -29,7 +29,7 @@ class AssetStatsOverview extends BaseWidget
                 ->color('primary')
                 ->chart([7, 2, 10, 3, 15, 4, 17]), // Sparkline pemanis UI
 
-            Stat::make('Total Valuasi Aset', 'Rp ' . number_format($totalValue, 0, ',', '.'))
+            Stat::make('Total Valuasi Aset', 'Rp '.number_format($totalValue, 0, ',', '.'))
                 ->description('Total akumulasi nilai perolehan')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),

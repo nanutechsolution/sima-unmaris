@@ -57,26 +57,26 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('asset_code', 50)->unique()->index(); // Identity Asset (Cth: UNMARIS/IT/2026/001)
             $table->string('name', 200);
-            
+
             // Relasi UUID Master Data (restrictOnDelete agar histori audit tidak rusak jika master dihapus)
             $table->foreignUuid('category_id')->constrained('categories')->restrictOnDelete();
             $table->foreignUuid('room_id')->constrained('rooms')->restrictOnDelete();
             $table->foreignUuid('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete();
-            
+
             // Penanggung Jawab (Relasi ke tabel users yang sudah dikonversi ke UUID)
-            $table->foreignUuid('pic_user_id')->constrained('users')->restrictOnDelete(); 
-            
+            $table->foreignUuid('pic_user_id')->constrained('users')->restrictOnDelete();
+
             // Financial & Lifecycle
             $table->decimal('acquisition_value', 15, 2);
             $table->date('acquisition_date');
-            
+
             // Menggunakan tipe data String untuk kompatibilitas Enum di layer Aplikasi
             $table->string('status', 30)->index(); // Available, In Use, Maintenance, Lost, Retired
             $table->string('condition', 30); // Good, Fair, Damaged
-            
+
             // Security & QR Code
             $table->string('qr_signature_hash')->nullable()->unique(); // Digital Signature Aset
-            
+
             $table->timestamps();
             $table->softDeletes(); // Wajib ada untuk mematuhi Audit Compliance
         });
@@ -85,22 +85,22 @@ return new class extends Migration
         Schema::create('asset_handovers', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('asset_id')->constrained('assets')->cascadeOnDelete();
-            
+
             // Aktor Transaksi (Relasi ke users ber-UUID)
             $table->foreignUuid('giver_user_id')->constrained('users')->restrictOnDelete();
             $table->foreignUuid('receiver_user_id')->constrained('users')->restrictOnDelete();
-            
+
             // Metadata Serah Terima
             $table->timestamp('handover_time')->useCurrent(); // Server timestamp yang valid
             $table->foreignUuid('location_id')->nullable()->constrained('locations')->restrictOnDelete(); // Lokasi penyerahan fisik
-            
+
             // Digital Proofs (Storage Strategy: Simpan PATH-nya saja, file ada di disk/S3)
             $table->string('asset_photo_path');
             $table->string('document_photo_path'); // Foto Berita Acara
-            
+
             $table->text('notes')->nullable();
             $table->string('digital_signature_hash')->nullable(); // Untuk eskalasi legal
-            
+
             $table->timestamps();
             $table->softDeletes();
         });

@@ -38,9 +38,9 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber, // Biru Dongker Logo
                 'warning' => Color::hex('#1B1464'), // Kuning Emas Logo
                 'success' => Color::Emerald,
-                'danger'  => Color::Rose,
-                'info'    => Color::Sky,
-                'gray'    => Color::Slate,
+                'danger' => Color::Rose,
+                'info' => Color::Sky,
+                'gray' => Color::Slate,
 
             ])
             // ->brandLogo(asset('images/logo-unmaris.png'))

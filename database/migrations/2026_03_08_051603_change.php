@@ -15,7 +15,7 @@ return new class extends Migration
             Schema::table('personal_access_tokens', function (Blueprint $table) {
                 // 1. Ubah tokenable_id menjadi UUID agar bisa menampung ID User
                 $table->uuid('tokenable_id')->change();
-                
+
                 // 2. Pastikan ID utama tetap auto_increment (seringkali bermasalah saat change)
                 $table->bigIncrements('id')->change();
             });

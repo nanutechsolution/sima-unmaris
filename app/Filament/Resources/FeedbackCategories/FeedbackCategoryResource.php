@@ -17,14 +17,17 @@ class FeedbackCategoryResource extends Resource
 {
     protected static ?string $model = FeedbackCategory::class;
 
-
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'Kategori Survei / Layanan';
+
     protected static ?string $pluralModelLabel = 'Kategori Survei';
+
     protected static ?string $navigationLabel = 'Kategori Survei / Layanan';
 
     // Gabungkan dengan grup Suara Kampus agar rapi
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::SERVICE_SATISFACTION->value;
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::SERVICE_SATISFACTION->value;
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema

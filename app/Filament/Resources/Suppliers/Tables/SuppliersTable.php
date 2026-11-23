@@ -7,13 +7,13 @@ use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class SuppliersTable
 {
@@ -87,8 +87,8 @@ class SuppliersTable
 
                             // Langsung download file PDF-nya
                             return response()->streamDownload(
-                                fn() => print($pdf->output()),
-                                'Laporan_Supplier_' . date('Ymd_His') . '.pdf'
+                                fn () => print ($pdf->output()),
+                                'Laporan_Supplier_'.date('Ymd_His').'.pdf'
                             );
                         })
                         ->deselectRecordsAfterCompletion(),

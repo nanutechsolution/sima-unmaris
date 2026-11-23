@@ -10,14 +10,13 @@ use Filament\Actions\DeleteBulkAction as ActionsDeleteBulkAction;
 use Filament\Actions\EditAction as ActionsEditAction;
 use Filament\Actions\ForceDeleteBulkAction as ActionsForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction as ActionsRestoreBulkAction;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section as ComponentsSection;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Placeholder;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Section as ComponentsSection;
 use Illuminate\Support\HtmlString;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -35,12 +34,12 @@ class FacilityFeedbackTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'active' => 'success',
                         'draft' => 'warning',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'active' => 'Aktif',
                         'draft' => 'Draft',
                         default => $state,
@@ -73,7 +72,7 @@ class FacilityFeedbackTable
                     ->label('Bagikan')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('info')
-                    ->visible(fn(FacilityFeedback $record) => $record->status === 'active')
+                    ->visible(fn (FacilityFeedback $record) => $record->status === 'active')
                     // Konfigurasi Modal sesuai Dokumentasi 5.x
                     ->modalHeading('Bagikan Formulir Survei')
                     ->modalDescription('Salin tautan atau gunakan QR Code di bawah untuk akses responden.')
@@ -84,7 +83,7 @@ class FacilityFeedbackTable
                     // Modal ini bersifat Read-only (Informasi)
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Selesai')
-                    ->form(fn(FacilityFeedback $record) => [
+                    ->form(fn (FacilityFeedback $record) => [
                         ComponentsSection::make()
                             ->schema([
                                 // Bagian QR Code
@@ -101,7 +100,7 @@ class FacilityFeedbackTable
                                         return new HtmlString('
                                             <div class="flex flex-col items-center justify-center space-y-4 justify-items-center">
                                                 <div class="p-4 bg-white ring-1 ring-gray-200 shadow-sm rounded-2xl">
-                                                    ' . $qr . '
+                                                    '.$qr.'
                                                 </div>
                                                 <div class="text-center">
                                                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pindai Untuk Mengisi</span>
@@ -115,9 +114,9 @@ class FacilityFeedbackTable
                                     ->label('Tautan Publik')
                                     ->default(route('survey.show', $record->id))
                                     ->readOnly()
-                                    ->copyable(copyMessage: 'Tautan berhasil disalin ke clipboard!', copyMessageDuration: 1500)
+                                    ->copyable(copyMessage: 'Tautan berhasil disalin ke clipboard!', copyMessageDuration: 1500),
 
-                            ])
+                            ]),
                     ]),
                 ActionsEditAction::make(),
                 ActionsDeleteAction::make(),

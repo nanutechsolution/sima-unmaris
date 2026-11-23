@@ -32,8 +32,8 @@ class InventoryItemsTable
                     ->alignCenter()
                     ->weight('bold')
                     // Logic Low Stock Alert
-                    ->color(fn($record) => $record->current_stock <= $record->min_stock ? 'danger' : 'success')
-                    ->formatStateUsing(fn($state, $record) => "{$state} {$record->unit}"),
+                    ->color(fn ($record) => $record->current_stock <= $record->min_stock ? 'danger' : 'success')
+                    ->formatStateUsing(fn ($state, $record) => "{$state} {$record->unit}"),
                 TextColumn::make('min_stock')
                     ->label('Batas Aman')
                     ->size('xs')
@@ -55,14 +55,14 @@ class InventoryItemsTable
                     ->icon('heroicon-o-plus-circle')
                     ->color('success')
                     ->modalHeading('Tambah Stok Barang (Restock)')
-                    ->modalDescription(fn(InventoryItem $record) => "Masukkan jumlah penambahan stok untuk {$record->name}.")
+                    ->modalDescription(fn (InventoryItem $record) => "Masukkan jumlah penambahan stok untuk {$record->name}.")
                     ->form([
                         TextInput::make('quantity')
                             ->label('Jumlah Barang Masuk')
                             ->numeric()
                             ->required()
                             ->minValue(1)
-                            ->suffix(fn(InventoryItem $record) => $record->unit),
+                            ->suffix(fn (InventoryItem $record) => $record->unit),
                         DatePicker::make('transaction_date')
                             ->label('Tanggal Restock')
                             ->default(now())
@@ -93,7 +93,7 @@ class InventoryItemsTable
                     ->icon('heroicon-o-minus-circle')
                     ->color('warning')
                     ->modalHeading('Distribusi Barang ke Unit')
-                    ->modalDescription(fn(InventoryItem $record) => "Stok tersedia saat ini: {$record->current_stock} {$record->unit}.")
+                    ->modalDescription(fn (InventoryItem $record) => "Stok tersedia saat ini: {$record->current_stock} {$record->unit}.")
                     ->form([
                         TextInput::make('quantity')
                             ->label('Jumlah Barang Keluar')
@@ -101,8 +101,8 @@ class InventoryItemsTable
                             ->required()
                             ->minValue(1)
                             // Validasi agar tidak bisa mengeluarkan barang melebihi stok yang ada
-                            ->maxValue(fn(InventoryItem $record) => max($record->current_stock, 1))
-                            ->suffix(fn(InventoryItem $record) => $record->unit),
+                            ->maxValue(fn (InventoryItem $record) => max($record->current_stock, 1))
+                            ->suffix(fn (InventoryItem $record) => $record->unit),
                         Select::make('department_id')
                             ->label('Unit Kerja Peminta')
                             ->relationship('transactions.department', 'name') // Mengambil relasi department
@@ -121,6 +121,7 @@ class InventoryItemsTable
                     ->action(function (InventoryItem $record, array $data): void {
                         if ($record->current_stock < $data['quantity']) {
                             Notification::make()->title('Gagal: Stok tidak mencukupi!')->danger()->send();
+
                             return;
                         }
 

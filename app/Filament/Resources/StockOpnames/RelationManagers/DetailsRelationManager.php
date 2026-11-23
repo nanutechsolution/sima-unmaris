@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\StockOpnameResource\RelationManagers;
+namespace App\Filament\Resources\StockOpnames\RelationManagers;
 
 use App\Enums\AssetConditionEnum;
 use App\Models\Asset;
@@ -10,18 +10,16 @@ use Filament\Actions\EditAction as ActionsEditAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Schemas\Schema;
 
 // Import action yang benar
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\DeleteAction;
 
 class DetailsRelationManager extends RelationManager
 {
     protected static string $relationship = 'details';
+
     protected static ?string $title = 'Hasil Scan / Audit Aset';
 
     public static function getFormSchema(): array
@@ -29,7 +27,7 @@ class DetailsRelationManager extends RelationManager
         return [
             Forms\Components\Select::make('asset_id')
                 ->relationship('asset', 'name')
-                ->getOptionLabelFromRecordUsing(fn($record) => "{$record->asset_code} - {$record->name}")
+                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->asset_code} - {$record->name}")
                 ->label('Scan / Pilih Aset')
                 ->searchable()
                 ->preload()
@@ -47,8 +45,8 @@ class DetailsRelationManager extends RelationManager
             Forms\Components\Select::make('actual_condition')
                 ->label('Kondisi Real Lapangan')
                 ->options(AssetConditionEnum::class)
-                ->required(fn(Get $get) => $get('is_found') === true)
-                ->visible(fn(Get $get) => $get('is_found') === true)
+                ->required(fn (Get $get) => $get('is_found') === true)
+                ->visible(fn (Get $get) => $get('is_found') === true)
                 ->helperText('Perhatian: Mengubah ini akan langsung mengubah status di Master Aset.'),
 
             Forms\Components\Select::make('actual_room_id')
@@ -56,7 +54,7 @@ class DetailsRelationManager extends RelationManager
                 ->label('Lokasi Ditemukan (Ruangan)')
                 ->searchable()
                 ->preload()
-                ->visible(fn(Get $get) => $get('is_found') === true)
+                ->visible(fn (Get $get) => $get('is_found') === true)
                 ->helperText('Pilih jika ruangan tidak sesuai dengan database. Ini akan memindahkan aset tersebut.'),
 
             Forms\Components\Textarea::make('notes')
@@ -102,8 +100,8 @@ class DetailsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('actual_condition')
                     ->label('Kondisi Real')
                     ->badge()
-                    ->formatStateUsing(fn(?string $state) => $state ? AssetConditionEnum::tryFrom($state)?->getLabel() : '-')
-                    ->color(fn(?string $state) => $state ? AssetConditionEnum::tryFrom($state)?->getColor() : 'gray'),
+                    ->formatStateUsing(fn (?string $state) => $state ? AssetConditionEnum::tryFrom($state)?->getLabel() : '-')
+                    ->color(fn (?string $state) => $state ? AssetConditionEnum::tryFrom($state)?->getColor() : 'gray'),
 
                 Tables\Columns\TextColumn::make('actualRoom.name')
                     ->label('Ruangan Real')
@@ -124,7 +122,7 @@ class DetailsRelationManager extends RelationManager
                         // 2. SINKRONISASI KE MASTER ASET
                         $asset = Asset::find($data['asset_id']);
                         if ($asset) {
-                            if (!$data['is_found']) {
+                            if (! $data['is_found']) {
                                 // Jika tidak ditemukan, ubah status aset menjadi "Hilang"
                                 $asset->update([
                                     'status' => 'lost',
@@ -136,7 +134,7 @@ class DetailsRelationManager extends RelationManager
                                     'condition' => $data['actual_condition'] ?? $asset->condition,
                                 ];
 
-                                if (!empty($data['actual_room_id']) && $data['actual_room_id'] !== $asset->room_id) {
+                                if (! empty($data['actual_room_id']) && $data['actual_room_id'] !== $asset->room_id) {
                                     $updatePayload['room_id'] = $data['actual_room_id'];
                                 }
 
@@ -154,27 +152,28 @@ class DetailsRelationManager extends RelationManager
                     ->mutateFormDataUsing(function (array $data, \Illuminate\Database\Eloquent\Model $record): array {
                         // SINKRONISASI SAAT EDIT AUDIT
                         $asset = Asset::find($record->asset_id ?? $data['asset_id']);
-                        
+
                         if ($asset) {
-                            if (!$data['is_found']) {
+                            if (! $data['is_found']) {
                                 $asset->update(['status' => 'lost', 'condition' => 'bad']);
                             } else {
                                 $updatePayload = [
                                     'condition' => $data['actual_condition'] ?? $asset->condition,
                                 ];
-                                
+
                                 // Kembalikan status ke normal jika sebelumnya hilang
                                 if ($asset->status === 'lost') {
                                     $updatePayload['status'] = 'available';
                                 }
-                                
-                                if (!empty($data['actual_room_id']) && $data['actual_room_id'] !== $asset->room_id) {
+
+                                if (! empty($data['actual_room_id']) && $data['actual_room_id'] !== $asset->room_id) {
                                     $updatePayload['room_id'] = $data['actual_room_id'];
                                 }
-                                
+
                                 $asset->update($updatePayload);
                             }
                         }
+
                         return $data;
                     }),
                 ActionsDeleteAction::make(),

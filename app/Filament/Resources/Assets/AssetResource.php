@@ -20,13 +20,20 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class AssetResource extends Resource
 {
     protected static ?string $model = Asset::class;
+
     // protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $modelLabel = 'Asset';
+
     protected static ?string $pluralModelLabel = 'Assets';
+
     protected static ?string $navigationLabel = 'Assets';
-    protected static string | \UnitEnum | null $navigationGroup = NavigationGroupEnum::ASSET_MANAGEMENT->value;
+
+    protected static string|\UnitEnum|null $navigationGroup = NavigationGroupEnum::ASSET_MANAGEMENT->value;
+
     protected static ?int $navigationSort = 1;
+
     public static function form(Schema $schema): Schema
     {
         return AssetForm::configure($schema);

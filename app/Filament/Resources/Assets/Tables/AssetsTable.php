@@ -9,12 +9,15 @@ use App\Models\Location;
 use App\Models\User;
 use App\Services\AssetHandoverService;
 use App\Services\QrIdentityService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction as ActionsEditAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -25,12 +28,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
-
-use Barryvdh\DomPDF\Facade\Pdf;
-use Filament\Actions\BulkAction;
-use Filament\Actions\ImportAction;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Database\Eloquent\Collection;
 
 class AssetsTable
 {
@@ -97,9 +94,9 @@ class AssetsTable
                     ->label('Nilai Buku (Saat Ini)')
                     ->money('IDR', locale: 'id') // Format Rupiah
                     // Mengambil nilai dari rumus cerdas (Accessor) yang kita buat di Model
-                    ->getStateUsing(fn($record) => $record->current_value)
+                    ->getStateUsing(fn ($record) => $record->current_value)
                     // Beri warna peringatan jika nilai barang sudah Rp 0 (sudah waktunya diganti/pensiun)
-                    ->color(fn($record) => $record->current_value == 0 ? 'danger' : 'success')
+                    ->color(fn ($record) => $record->current_value == 0 ? 'danger' : 'success')
                     ->weight('bold')
                     ->sortable()
                     ->toggleable(),
@@ -129,12 +126,13 @@ class AssetsTable
                         ->modalWidth('sm')
                         ->modalContent(function (Asset $record, QrIdentityService $qrService) {
                             $url = $qrService->generateAssetQrCode($record);
+
                             return new HtmlString('
                                 <div class="flex flex-col items-center justify-center p-4">
                                     <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                                        <img src="' . $url . '" alt="QR Code" class="w-48 h-48">
+                                        <img src="'.$url.'" alt="QR Code" class="w-48 h-48">
                                     </div>
-                                    <p class="mt-4 text-base text-gray-800 font-mono font-bold tracking-wider">' . $record->asset_code . '</p>
+                                    <p class="mt-4 text-base text-gray-800 font-mono font-bold tracking-wider">'.$record->asset_code.'</p>
                                     <p class="text-xs text-center text-gray-500 mt-2">Cetak dan tempelkan QR ini pada fisik aset.<br>Scan untuk verifikasi dan audit.</p>
                                 </div>
                             ');
@@ -145,7 +143,7 @@ class AssetsTable
                         ->label('Serah Terima')
                         ->icon('heroicon-o-arrows-right-left')
                         ->color('success')
-                        ->disabled(fn(\App\Models\Asset $record) => in_array(
+                        ->disabled(fn (\App\Models\Asset $record) => in_array(
                             is_object($record->status) ? $record->status->value : $record->status,
                             ['maintenance', 'lost', 'retired']
                         ))
@@ -165,12 +163,12 @@ class AssetsTable
                         ->form([
                             Select::make('receiver_user_id')
                                 ->label('Penerima Aset Baru')
-                                ->options(fn() => User::pluck('name', 'id'))
+                                ->options(fn () => User::pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                             Select::make('location_id')
                                 ->label('Lokasi Penyerahan Fisik')
-                                ->options(fn() => Location::pluck('name', 'id'))
+                                ->options(fn () => Location::pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
 
@@ -178,12 +176,12 @@ class AssetsTable
                             FileUpload::make('asset_photo')
                                 ->label('Foto Fisik Aset Saat Penyerahan')
                                 ->image()
-                                ->directory('handovers/' . date('Y/m') . '/assets')
+                                ->directory('handovers/'.date('Y/m').'/assets')
                                 ->required(),
                             FileUpload::make('document_photo')
                                 ->label('Foto Dokumen Berita Acara')
                                 ->image()
-                                ->directory('handovers/' . date('Y/m') . '/documents')
+                                ->directory('handovers/'.date('Y/m').'/documents')
                                 ->required(),
 
                             Textarea::make('notes')
@@ -212,14 +210,14 @@ class AssetsTable
                                     ->danger()
                                     ->send();
                             }
-                        })
+                        }),
                 ]),
                 Action::make('returnToWarehouse')
                     ->label('Tarik ke Gudang')
                     ->icon('heroicon-o-arrow-down-on-square-stack')
                     ->color('warning')
                     // Guardrails: Hanya muncul untuk aset yang sedang "Digunakan" (In Use)
-                    ->visible(fn(\App\Models\Asset $record) => in_array(
+                    ->visible(fn (\App\Models\Asset $record) => in_array(
                         is_object($record->status) ? $record->status->value : $record->status,
                         ['in_use']
                     ))
@@ -230,7 +228,7 @@ class AssetsTable
                             ->label('Kondisi Fisik Saat Dikembalikan')
                             ->options(\App\Enums\AssetConditionEnum::class)
                             // Default ke kondisi terakhir yang tercatat di database
-                            ->default(fn(\App\Models\Asset $record) => is_object($record->condition) ? $record->condition->value : $record->condition)
+                            ->default(fn (\App\Models\Asset $record) => is_object($record->condition) ? $record->condition->value : $record->condition)
                             ->required()
                             ->helperText('Pastikan mengecek fisik barang. Jika dikembalikan dalam keadaan rusak, ubah menjadi "Rusak".'),
 
@@ -317,25 +315,25 @@ class AssetsTable
 
                             foreach ($records as $record) {
                                 // 1. Pastikan Digital Signature (Hash) ada di database
-                                if (!$record->qr_signature_hash) {
-                                    $signature = hash_hmac('sha256', $record->id . $record->asset_code, config('app.key'));
+                                if (! $record->qr_signature_hash) {
+                                    $signature = hash_hmac('sha256', $record->id.$record->asset_code, config('app.key'));
                                     $record->update(['qr_signature_hash' => $signature]);
                                 }
                                 $verifyUrl = route('asset.verify', ['signature' => $record->qr_signature_hash]);
 
                                 // 2. Generate Base64 SVG QR Code
                                 $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(200)->margin(1)->generate($verifyUrl);
-                                $imgSrc = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+                                $imgSrc = 'data:image/svg+xml;base64,'.base64_encode($qrSvg);
 
                                 // 3. Masukkan ke dalam grid HTML Stiker Profesional
                                 $html .= '<div class="sticker">';
                                 $html .= '<div class="sticker-header">Aset Kampus Unmaris</div>';
-                                $html .= '<div class="qr-container"><img src="' . $imgSrc . '" class="qr-img" /></div>';
-                                $html .= '<p class="code">' . $record->asset_code . '</p>';
-                                $html .= '<p class="name">' . substr($record->name, 0, 45) . '</p>';
+                                $html .= '<div class="qr-container"><img src="'.$imgSrc.'" class="qr-img" /></div>';
+                                $html .= '<p class="code">'.$record->asset_code.'</p>';
+                                $html .= '<p class="name">'.substr($record->name, 0, 45).'</p>';
                                 $html .= '<div class="details">';
-                                $html .= 'Kategori: <span>' . ($record->category->name ?? '-') . '</span><br>';
-                                $html .= 'Lokasi: <span>' . ($record->room->name ?? 'Belum Ditentukan') . '</span>';
+                                $html .= 'Kategori: <span>'.($record->category->name ?? '-').'</span><br>';
+                                $html .= 'Lokasi: <span>'.($record->room->name ?? 'Belum Ditentukan').'</span>';
                                 $html .= '</div>';
                                 $html .= '</div>';
                             }
@@ -347,8 +345,8 @@ class AssetsTable
 
                             // 5. Download Otomatis PDF-nya
                             return response()->streamDownload(
-                                fn() => print($pdf->output()),
-                                'Stiker_QR_Aset_' . date('Ymd_His') . '.pdf'
+                                fn () => print ($pdf->output()),
+                                'Stiker_QR_Aset_'.date('Ymd_His').'.pdf'
                             );
                         })
                         ->deselectRecordsAfterCompletion(),

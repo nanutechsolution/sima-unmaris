@@ -78,11 +78,11 @@ return [
     |
     */
 
-    'locale' =>  'id',
+    'locale' => 'id',
 
     'fallback_locale' => 'en',
 
-    'faker_locale' =>  'id_ID',
+    'faker_locale' => 'id_ID',
 
     /*
     |--------------------------------------------------------------------------

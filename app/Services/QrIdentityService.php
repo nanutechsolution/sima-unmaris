@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Asset;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrIdentityService
 {
@@ -15,9 +15,9 @@ class QrIdentityService
     public function generateAssetQrCode(Asset $asset): string
     {
         // 1. Buat Digital Signature Hash jika belum ada
-        if (!$asset->qr_signature_hash) {
+        if (! $asset->qr_signature_hash) {
             // Gunakan kombinasi ID, Kode, dan Salt (app key) agar tidak bisa ditebak
-            $signature = hash_hmac('sha256', $asset->id . $asset->asset_code, config('app.key'));
+            $signature = hash_hmac('sha256', $asset->id.$asset->asset_code, config('app.key'));
             $asset->update(['qr_signature_hash' => $signature]);
         }
 

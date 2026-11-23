@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\FacilityFeedback;
 use App\Models\SurveyResponse;
 use App\Models\User;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Str;
 
 class SurveyApiController extends Controller
@@ -40,7 +40,7 @@ class SurveyApiController extends Controller
             });
 
         return response()->json([
-            'surveys' => $surveys
+            'surveys' => $surveys,
         ]);
     }
 
@@ -61,7 +61,7 @@ class SurveyApiController extends Controller
             $response = Http::timeout(5)->withHeaders([
                 'X-SIMA-KEY' => $apiKey,
                 'Accept' => 'application/json',
-            ])->post($baseUrl . '/login', [
+            ])->post($baseUrl.'/login', [
                 'username' => $request->nim_nidn,
                 'password' => $request->password,
             ]);
@@ -73,11 +73,11 @@ class SurveyApiController extends Controller
             }
 
             $siakadToken = $response->json('token');
-            $profileResponse = Http::withToken($siakadToken)->get($baseUrl . '/user/me');
+            $profileResponse = Http::withToken($siakadToken)->get($baseUrl.'/user/me');
             $siakadUser = $profileResponse->json('data');
 
             $user = User::updateOrCreate(
-                ['email' => $siakadUser['identifier'] . '@unmaris.ac.id'],
+                ['email' => $siakadUser['identifier'].'@unmaris.ac.id'],
                 [
                     'name' => $siakadUser['name'],
                     'password' => bcrypt(Str::random(16)),
@@ -97,7 +97,8 @@ class SurveyApiController extends Controller
                 'token' => $localToken,
             ]);
         } catch (\Exception $e) {
-            Log::error('SIAKAD Bridge Error: ' . $e->getMessage());
+            Log::error('SIAKAD Bridge Error: '.$e->getMessage());
+
             return response()->json(['message' => 'Kesalahan koneksi ke SIAKAD.'], 500);
         }
     }

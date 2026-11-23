@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Department extends Model
 {
     use HasUuids;
+
     protected $guarded = [];
 
     // Relasi ke Kepala Departemen (User)
@@ -21,7 +22,6 @@ class Department extends Model
     {
         return $this->hasMany(Asset::class);
     }
-
 
     /**
      * Relasi ke mutasi inventori.

@@ -36,7 +36,7 @@ class RolePermissionSeeder extends Seeder
             ]
         );
 
-        if (!$admin->hasRole('Super Admin')) {
+        if (! $admin->hasRole('Super Admin')) {
             $admin->assignRole($superAdminRole);
         }
 
@@ -50,7 +50,7 @@ class RolePermissionSeeder extends Seeder
             ]
         );
 
-        if (!$staf->hasRole('Staf Inventaris')) {
+        if (! $staf->hasRole('Staf Inventaris')) {
             $staf->assignRole($stafRole);
         }
 

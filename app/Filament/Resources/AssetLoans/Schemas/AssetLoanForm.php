@@ -4,7 +4,6 @@ namespace App\Filament\Resources\AssetLoans\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -21,8 +20,8 @@ class AssetLoanForm
                     ->schema([
                         Select::make('asset_id')
                             // GUARDRAILS: Hanya aset yang berstatus "Available" yang muncul di pilihan!
-                            ->relationship('asset', 'name', fn(Builder $query) => $query->where('status', 'available'))
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->asset_code} - {$record->name}")
+                            ->relationship('asset', 'name', fn (Builder $query) => $query->where('status', 'available'))
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->asset_code} - {$record->name}")
                             ->label('Pilih Aset (Hanya yang Tersedia)')
                             ->searchable()
                             ->preload()

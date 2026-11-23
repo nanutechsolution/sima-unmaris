@@ -18,13 +18,13 @@ return new class extends Migration
                  * Cek apakah kolom user_id sudah ada sebelum mencoba menambahkannya.
                  * Ini mencegah error "Duplicate column name" jika migrasi dijalankan ulang.
                  */
-                if (!Schema::hasColumn('survey_responses', 'user_id')) {
+                if (! Schema::hasColumn('survey_responses', 'user_id')) {
                     $table->foreignUuid('user_id')
                         ->nullable()
                         ->after('facility_feedback_id')
                         ->constrained('users')
                         ->nullOnDelete();
-                    
+
                     $table->index('user_id');
                 }
             });
@@ -36,7 +36,7 @@ return new class extends Migration
             Schema::table('personal_access_tokens', function (Blueprint $table) {
                 // Mengembalikan sifat auto_increment pada kolom id
                 $table->bigIncrements('id')->change();
-                
+
                 // Memastikan tokenable_id adalah UUID agar sinkron dengan tabel users kita
                 if (Schema::hasColumn('personal_access_tokens', 'tokenable_id')) {
                     $table->uuid('tokenable_id')->change();
