@@ -1,289 +1,289 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $appSettings->getAppName() }} - {{ $appSettings->getInstitutionName() }}</title>
-    <meta name="description" content="{{ $appSettings->getAppName() }}: {{ $appSettings->getAppDescription() }}">
-    <!-- Menggunakan Tailwind CSS CDN untuk kepraktisan halaman publik eksternal -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- logo -->
-    <link rel="icon" href="{{ $appSettings->getFaviconUrl() }}" type="image/x-icon">
-</head>
-<body class="bg-gray-50 text-gray-800 antialiased font-sans">
+@extends('frontend.layouts.public')
 
-    {{-- ======================= HEADER ======================= --}}
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <a href="{{ route('home') }}" class="flex items-center gap-3">
-                <img src="{{ $appSettings->getLogoUrl() }}" alt="{{ $appSettings->getAppName() }}" class="h-10 w-10 object-contain">
-                <div>
-                    <p class="text-lg font-extrabold text-[#1B2A66] leading-tight tracking-wide">{{ $appSettings->getAppName() }}</p>
-                    <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">{{ $appSettings->getInstitutionName() }}</p>
-                </div>
-            </a>
+@section('title', $appSettings->getAppName().' — Sistem Informasi Manajemen Aset '.$appSettings->getInstitutionName())
+@section('meta_description', $appSettings->getAppDescription().'. Verifikasi keaslian aset, cek status inventaris, dan laporkan kerusakan secara daring di '.$appSettings->getInstitutionName().'.')
 
-            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-gray-600">
-                <a href="{{ route('home') }}" class="hover:text-[#1B2A66] transition-colors">Beranda</a>
-                <a href="#alur-verifikasi" class="hover:text-[#1B2A66] transition-colors">Alur Verifikasi</a>
-                <a href="#fitur" class="hover:text-[#1B2A66] transition-colors">Fitur</a>
-                <a href="#layanan" class="hover:text-[#1B2A66] transition-colors">Layanan</a>
-            </nav>
+@php
+    $value = (float) $stats['inventory_value'];
+    $valueLabel = $value >= 1_000_000_000
+        ? 'Rp '.number_format($value / 1_000_000_000, 1, ',', '.').' M'
+        : ($value >= 1_000_000
+            ? 'Rp '.number_format($value / 1_000_000, 1, ',', '.').' Jt'
+            : 'Rp '.number_format($value, 0, ',', '.'));
 
-            <a href="{{ url('/admin/login') }}" class="inline-flex items-center justify-center gap-2 bg-[#1B2A66] hover:bg-blue-900 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-900/20 transition-colors whitespace-nowrap">
-                Portal Kelas &amp; Staf
-            </a>
-        </div>
-    </header>
+    $statItems = [
+        ['label' => 'Aset Terdata', 'value' => number_format($stats['total_assets'], 0, ',', '.'), 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+        ['label' => 'Nilai Inventaris', 'value' => $valueLabel, 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['label' => 'Kategori Aset', 'value' => number_format($stats['categories'], 0, ',', '.'), 'icon' => 'M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z'],
+        ['label' => 'Ruang / Lokasi', 'value' => number_format($stats['rooms'], 0, ',', '.'), 'icon' => 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z'],
+    ];
+@endphp
 
+@section('content')
     {{-- ======================= HERO ======================= --}}
-    <section class="relative overflow-hidden bg-gradient-to-br from-[#1B2A66] via-[#141C4E] to-[#0C1330] text-white">
-        <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#FACC15]/10 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-24 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
+    <section class="relative overflow-hidden bg-brand-950 text-white">
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div class="absolute -left-32 top-0 h-80 w-80 rounded-full bg-brand-600/30 blur-3xl"></div>
+            <div class="absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-accent-500/10 blur-3xl"></div>
+            <div class="absolute inset-0 opacity-[0.07]" style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 44px 44px;"></div>
+        </div>
 
-        <div class="relative max-w-6xl mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-14 items-center">
-            <div>
-                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[#FACC15] text-xs font-bold uppercase tracking-widest">
-                    🏛️ {{ $appSettings->getInstitutionName() }}
-                </span>
-                <h1 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
-                    {{ $appSettings->getAppName() }}
-                </h1>
-                <p class="mt-5 text-base md:text-lg text-blue-100 leading-relaxed">
-                    {{ $appSettings->getAppName() }} menghubungkan inventaris aset kampus, verifikasi identitas digital melalui QR Code, pelaporan kerusakan, dan survei kepuasan civitas akademika dalam satu platform terpadu.
+        <div class="relative mx-auto grid max-w-7xl gap-12 px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:px-8 lg:pb-24 lg:pt-20">
+            <div class="max-w-2xl">
+                <p class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-100 backdrop-blur">
+                    <span class="relative flex h-2 w-2" aria-hidden="true">
+                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+                    </span>
+                    Inventaris kampus terverifikasi
                 </p>
-                <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                    <a href="{{ route('asset.check') }}" class="inline-flex items-center justify-center gap-2 bg-[#FACC15] hover:bg-yellow-400 text-[#1B2A66] font-bold px-7 py-3.5 rounded-xl shadow-lg shadow-[#FACC15]/20 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6M9 11h4"></path></svg>
+
+                <h1 class="mt-5 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+                    Aset kampus,
+                    <span class="bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent">terverifikasi</span>
+                    dalam satu pindai.
+                </h1>
+
+                <p class="mt-5 max-w-xl text-base leading-relaxed text-brand-100/85 sm:text-lg">
+                    {{ $appSettings->getAppName() }} menghubungkan stiker QR, data inventaris, dan pelaporan kerusakan di lingkungan {{ $appSettings->getInstitutionName() }} — transparan, cepat, dan bisa diakses siapa saja.
+                </p>
+
+                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <a href="{{ route('asset.check') }}"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-400 px-6 py-3.5 text-sm font-extrabold text-brand-950 shadow-lg shadow-accent-500/20 transition hover:bg-accent-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-950">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                         Cek Status Aset
                     </a>
-                    <a href="{{ url('/admin/login') }}" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold px-7 py-3.5 rounded-xl transition-colors">
-                        Portal Kelas &amp; Staf
+                    <a href="#alur-verifikasi"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-950">
+                        Lihat Cara Verifikasi
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
                     </a>
                 </div>
-                <p class="mt-6 text-xs text-blue-200">Dikembangkan oleh Biro Sarpras Universitas Stella Maris</p>
+
+                <dl class="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-6 text-left">
+                    <div>
+                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-300">Aset</dt>
+                        <dd class="mt-1 text-2xl font-extrabold">{{ number_format($stats['total_assets'], 0, ',', '.') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-300">Ruang</dt>
+                        <dd class="mt-1 text-2xl font-extrabold">{{ number_format($stats['rooms'], 0, ',', '.') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-300">Survei Aktif</dt>
+                        <dd class="mt-1 text-2xl font-extrabold">{{ number_format($stats['active_surveys'], 0, ',', '.') }}</dd>
+                    </div>
+                </dl>
             </div>
 
-            {{-- Kartu Visual Status Aset --}}
-            <div class="relative mx-auto w-full max-w-sm">
-                <div class="absolute -inset-8 bg-[#FACC15]/20 blur-3xl rounded-full"></div>
-                <div class="relative bg-white rounded-3xl shadow-2xl p-6 text-gray-800">
-                    <div class="flex items-center justify-between">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status Verifikasi</p>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[11px] font-bold">Terverifikasi</span>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-center">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kode Identitas Aset</p>
-                        <p class="font-mono font-bold text-2xl text-[#1B2A66] tracking-wider mt-1">UNMARIS/IT/2026/001</p>
-                    </div>
-                    <div class="mt-4 text-center">
-                        <p class="text-sm font-semibold text-gray-800">Laptop Bisnis Enterprise</p>
-                        <p class="text-xs text-gray-500 mt-0.5">Laboratorium Komputer A</p>
-                    </div>
-                    <div class="mt-4 grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
-                        <div class="bg-gray-50 rounded-xl p-3">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kondisi</p>
-                            <p class="text-xs font-bold text-green-600 mt-1">Baik</p>
+            {{-- Kartu ilustrasi verifikasi --}}
+            <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+                <div class="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-accent-400/20 via-transparent to-white/10 blur-xl" aria-hidden="true"></div>
+                <div class="relative rounded-3xl border border-white/15 bg-white/10 p-2 shadow-soft backdrop-blur-xl">
+                    <div class="rounded-[1.35rem] bg-white p-5 text-slate-800 sm:p-6">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                                Terverifikasi
+                            </span>
+                            <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">SIMA · QR</span>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-3">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kategori</p>
-                            <p class="text-xs font-bold text-[#1B2A66] mt-1">Komputer</p>
+
+                        <div class="mt-5 flex items-center gap-4">
+                            <div class="grid h-16 w-16 flex-none place-items-center rounded-2xl bg-brand-950 p-2" aria-hidden="true">
+                                <div class="grid grid-cols-4 gap-0.5">
+                                    @for($i = 0; $i < 16; $i++)
+                                        <span class="h-1.5 w-1.5 rounded-[1px] {{ in_array($i, [0,1,2,3,4,6,7,8,11,12,13,14,15]) ? 'bg-white' : 'bg-transparent' }}"></span>
+                                    @endfor
+                                </div>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Kode Aset</p>
+                                <p class="truncate font-mono text-sm font-extrabold text-brand-900">UNMARIS/IT/2026/001</p>
+                                <p class="mt-1 truncate text-xs text-slate-500">Laptop Lenovo ThinkPad L14</p>
+                            </div>
+                        </div>
+
+                        <dl class="mt-5 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-xl bg-slate-50 px-3 py-2.5">
+                                <dt class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Kondisi</dt>
+                                <dd class="mt-0.5 font-bold text-emerald-600">Baik</dd>
+                            </div>
+                            <div class="rounded-xl bg-slate-50 px-3 py-2.5">
+                                <dt class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Status</dt>
+                                <dd class="mt-0.5 font-bold text-sky-600">Digunakan</dd>
+                            </div>
+                            <div class="col-span-2 rounded-xl bg-slate-50 px-3 py-2.5">
+                                <dt class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Penempatan</dt>
+                                <dd class="mt-0.5 text-xs font-semibold text-slate-700">Lab Komputer · Gedung Rektorat Lt. 2</dd>
+                            </div>
+                        </dl>
+
+                        <div class="mt-4 flex items-center gap-2 rounded-xl border border-dashed border-slate-200 px-3 py-2.5 text-[11px] font-semibold text-slate-500">
+                            <svg class="h-4 w-4 flex-none text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.6 1.4A9 9 0 1112 3a9 9 0 018.6 6.4z"/></svg>
+                            Data resmi dari database inventaris kampus
                         </div>
                     </div>
+                </div>
+
+                <div class="absolute -bottom-5 -left-4 hidden items-center gap-2 rounded-2xl border border-white/15 bg-white/95 px-3.5 py-2.5 text-slate-800 shadow-soft sm:flex" aria-hidden="true">
+                    <span class="grid h-8 w-8 place-items-center rounded-full bg-rose-50 text-rose-600">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </span>
+                    <span class="text-xs font-bold leading-tight">Lapor kerusakan<br><span class="font-medium text-slate-500">langsung dari ponsel</span></span>
                 </div>
             </div>
         </div>
     </section>
 
     {{-- ======================= STATISTIK ======================= --}}
-    <section class="max-w-6xl mx-auto px-4 -mt-10 relative z-10 mb-4">
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-3xl">
-            <div class="p-6 text-center">
-                <p class="text-3xl font-extrabold text-[#1B2A66]">{{ $stats['total_assets'] }}</p>
-                <p class="mt-1 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Aset Terdaftar</p>
-            </div>
-            <div class="p-6 text-center">
-                <p class="text-2xl font-extrabold text-[#1B2A66]">Rp {{ number_format($stats['inventory_value'], 0, ',', '.') }}</p>
-                <p class="mt-1 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Nilai Inventaris (Rp)</p>
-            </div>
-            <div class="p-6 text-center">
-                <p class="text-3xl font-extrabold text-[#1B2A66]">{{ $stats['categories'] }}</p>
-                <p class="mt-1 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Kategori Aset</p>
-            </div>
-            <div class="p-6 text-center">
-                <p class="text-3xl font-extrabold text-[#1B2A66]">{{ $stats['rooms'] }}</p>
-                <p class="mt-1 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Ruang Terdaftar</p>
-            </div>
+    <section class="relative z-10 mx-auto -mt-8 max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Statistik inventaris">
+        <div class="grid grid-cols-2 gap-3 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-soft sm:gap-4 sm:p-6 lg:grid-cols-4">
+            @foreach($statItems as $item)
+                <div class="rounded-2xl bg-slate-50/80 p-4 sm:p-5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="grid h-9 w-9 flex-none place-items-center rounded-xl bg-brand-100 text-brand-700">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/></svg>
+                        </span>
+                        <p class="text-[10px] font-bold uppercase leading-tight tracking-[0.14em] text-slate-400">{{ $item['label'] }}</p>
+                    </div>
+                    <p class="mt-3 text-xl font-extrabold tracking-tight text-brand-900 sm:text-2xl">{{ $item['value'] }}</p>
+                </div>
+            @endforeach
         </div>
     </section>
 
-    {{-- ======================= ALUR VERIFIKASI ======================= --}}
-    <section id="alur-verifikasi" class="max-w-6xl mx-auto px-4 py-20 scroll-mt-24">
-        <div class="text-center max-w-2xl mx-auto">
-            <span class="text-xs font-bold text-[#F59E0B] uppercase tracking-widest">Cara Kerja</span>
-            <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Verifikasi Aset dalam 3 Langkah</h2>
-            <p class="mt-3 text-gray-600">Tanpa perlu login, siapa pun dapat memverifikasi kebenaran sebuah aset melalui proses digital signature yang ketat.</p>
-        </div>
-
-        <div class="mt-14 grid md:grid-cols-3 gap-6">
-            {{-- Step 1 --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
-                <div class="w-14 h-14 rounded-full bg-[#1B2A66] text-white font-extrabold text-xl flex items-center justify-center mx-auto">1</div>
-                <div class="mt-5">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-[#EEF2FF] flex items-center justify-center text-[#1B2A66]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4V2m0 6l-3 3m3-3l3 3m0 6l-3 3m3-3l3 3M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path></svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Scan QR Code</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Gunakan smartphone untuk memindai stiker QR pada aset fisik yang ingin Anda verifikasi.</p>
+    {{-- ======================= ALUR ======================= --}}
+    <section id="alur-verifikasi" class="scroll-mt-24 py-16 sm:py-20 lg:py-24">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl text-center">
+                <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-brand-600">Alur verifikasi</p>
+                <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Tiga langkah, aset langsung terverifikasi</h2>
+                <p class="mt-4 text-base leading-relaxed text-slate-600">Tidak perlu login. Semua orang dapat memverifikasi keaslian aset dan melaporkan kendala secara langsung.</p>
             </div>
 
-            {{-- Step 2 --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
-                <div class="w-14 h-14 rounded-full bg-[#1B2A66] text-white font-extrabold text-xl flex items-center justify-center mx-auto">2</div>
-                <div class="mt-5">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-[#EEF2FF] flex items-center justify-center text-[#1B2A66]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Terverifikasi Resmi</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Sistem memvalidasi digital signature (HMAC-SHA256) dan mengirimkannya ke basis data inventaris kampus.</p>
-            </div>
+            <ol class="mt-12 grid gap-5 md:grid-cols-3">
+                @php
+                    $steps = [
+                        ['n' => '01', 'title' => 'Pindai atau masukkan kode', 'desc' => 'Arahkan kamera ke stiker QR pada aset, atau ketik kode identitas aset pada halaman cek aset.', 'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'],
+                        ['n' => '02', 'title' => 'Periksa data resmi', 'desc' => 'Sistem menampilkan nama aset, kategori, kondisi, status, lokasi, dan penanggung jawab langsung dari database.', 'icon' => 'M9 12l2 2 4-4m5.6 1.4A9 9 0 1112 3a9 9 0 018.6 6.4z'],
+                        ['n' => '03', 'title' => 'Laporkan bila bermasalah', 'desc' => 'Menemukan kerusakan? Kirim laporan dari halaman aset — tanpa aplikasi tambahan, cukup beberapa detik.', 'icon' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'],
+                    ];
+                @endphp
 
-            {{-- Step 3 --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
-                <div class="w-14 h-14 rounded-full bg-[#1B2A66] text-white font-extrabold text-xl flex items-center justify-center mx-auto">3</div>
-                <div class="mt-5">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-[#EEF2FF] flex items-center justify-center text-[#1B2A66]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Lihat Status &amp; Lapor</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Pantau kondisi fisik aset atau ajukan laporan kerusakan melalui formulir publik yang dilindungi sistem.</p>
-            </div>
+                @foreach($steps as $step)
+                    <li class="group relative rounded-3xl border border-slate-200/80 bg-white p-6 shadow-card transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-soft sm:p-7">
+                        <div class="flex items-center justify-between">
+                            <span class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 transition group-hover:bg-brand-800 group-hover:text-white">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $step['icon'] }}"/></svg>
+                            </span>
+                            <span class="font-mono text-3xl font-extrabold text-slate-100 transition group-hover:text-brand-100" aria-hidden="true">{{ $step['n'] }}</span>
+                        </div>
+                        <h3 class="mt-5 text-lg font-extrabold text-slate-900">{{ $step['title'] }}</h3>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ $step['desc'] }}</p>
+                    </li>
+                @endforeach
+            </ol>
         </div>
     </section>
 
     {{-- ======================= FITUR ======================= --}}
-    <section id="fitur" class="max-w-6xl mx-auto px-4 py-20 scroll-mt-24">
-        <div class="text-center max-w-2xl mx-auto">
-            <span class="text-xs font-bold text-[#F59E0B] uppercase tracking-widest">Keunggulan</span>
-            <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Fitur Unggulan {{ $appSettings->getAppName() }}</h2>
-            <p class="mt-3 text-gray-600">Satu ekosistem lengkap untuk menjawab seluruh kebutuhan operasional dan layanan kampus.</p>
-        </div>
-
-        <div class="mt-14 grid md:grid-cols-3 gap-6">
-            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-6">
-                <div class="w-12 h-12 rounded-xl bg-[#1B2A66]/10 flex items-center justify-center text-[#1B2A66]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h-9.01M20 4h.01M12 7H7.01M12 4H7.01M4 9H20"></path></svg>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Manajemen Inventaris</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Pendataan terpusat seluruh aset kampus dengan data lifecycle, lokasi penempatan, PIC, dan nilai penyusutan.</p>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-6">
-                <div class="w-12 h-12 rounded-xl bg-[#1B2A66]/10 flex items-center justify-center text-[#1B2A66]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8V4m0 4l-4 4m4-4l4 4m0 8l-4 4m4-4v8"></path></svg>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Verifikasi Digital QR</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Setiap aset diberi digital signature unik (HMAC-SHA256) yang mengarah ke halaman verifikasi resmi.</p>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-6">
-                <div class="w-12 h-12 rounded-xl bg-[#1B2A66]/10 flex items-center justify-center text-[#1B2A66]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Laporan Kerusakan</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Pelaporan kerusakan dilakukan secara crowdsourced dengan perlindungan honeypot dan throttling rate limit.</p>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-6">
-                <div class="w-12 h-12 rounded-xl bg-[#1B2A66]/10 flex items-center justify-center text-[#1B2A66]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14l-1.5-2A2 2 0 0116.5 5H7.5a2 2 0 01-1.5 1L5 8z"></path></svg>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Inventori &amp; ATK</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Kelola alat tulis dan perlengkapan inventaris dengan sistem transaksi stok yang terdokumentasi.</p>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-6">
-                <div class="w-12 h-12 rounded-xl bg-[#1B2A66]/10 flex items-center justify-center text-[#1B2A66]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Survei Kepuasan</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Template survei dinamis (rating, pilihan, teks) untuk mengukur kepuasan layanan kampus secara berkala.</p>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-6">
-                <div class="w-12 h-12 rounded-xl bg-[#1B2A66]/10 flex items-center justify-center text-[#1B2A66]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <h3 class="mt-4 font-bold text-gray-800 text-lg">Audit &amp; Laporan</h3>
-                <p class="mt-2 text-sm text-gray-500 leading-relaxed">Ekspor laporan akreditasi (PDF/Excel) dan jejak audit aktivitas sistem yang transparan.</p>
-            </div>
-        </div>
-    </section>
-
-    {{-- ======================= CTA / LAYANAN ======================= --}}
-    <section id="layanan" class="max-w-6xl mx-auto px-4 py-20 scroll-mt-24">
-        <div class="bg-gradient-to-br from-[#1B2A66] to-[#0C1330] rounded-[2rem] px-6 py-14 text-center text-white relative overflow-hidden">
-            <div class="absolute -top-20 -right-20 w-72 h-72 bg-[#FACC15]/10 rounded-full blur-3xl"></div>
-            <div class="relative max-w-2xl mx-auto">
-                <h2 class="text-3xl font-extrabold">Butuh Membuktikan Status Aset Hari Ini?</h2>
-                <p class="mt-4 text-blue-100 leading-relaxed">Scan QR Code pada stiker aset fisik atau akses portal untuk staf dan administrator kampus.</p>
-                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('asset.check') }}" class="inline-flex items-center justify-center gap-2 bg-[#FACC15] hover:bg-yellow-400 text-[#1B2A66] font-bold px-7 py-3.5 rounded-xl shadow-lg shadow-[#FACC15]/20 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6M9 11h4"></path></svg>
-                        Cek Status Aset
+    <section id="fitur" class="scroll-mt-24 border-y border-slate-200/70 bg-white py-16 sm:py-20 lg:py-24">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
+                <div class="lg:sticky lg:top-28">
+                    <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-brand-600">Fitur utama</p>
+                    <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Dirancang untuk transparansi pengelolaan aset</h2>
+                    <p class="mt-4 text-base leading-relaxed text-slate-600">
+                        Dari pencatatan hingga pelaporan, setiap fitur dibangun agar data inventaris kampus mudah diakses dan sulit disalahgunakan.
+                    </p>
+                    <a href="{{ route('asset.check') }}" class="mt-6 inline-flex items-center gap-2 text-sm font-extrabold text-brand-700 transition hover:text-brand-900">
+                        Mulai cek aset sekarang
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6"/></svg>
                     </a>
-                    <a href="{{ url('/admin/login') }}" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold px-7 py-3.5 rounded-xl transition-colors">
-                        Portal Kelas &amp; Staf
-                    </a>
+                </div>
+
+                @php
+                    $features = [
+                        ['title' => 'Verifikasi QR asli', 'desc' => 'Setiap aset memiliki tanda tangan digital unik sehingga stiker palsu mudah dikenali.', 'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'],
+                        ['title' => 'Data kondisi real-time', 'desc' => 'Kondisi fisik dan status pemakaian aset selalu mengikuti pencatatan terbaru dari unit pengelola.', 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+                        ['title' => 'Pelaporan tanpa aplikasi', 'desc' => 'Mahasiswa, dosen, dan staf dapat melapor kerusakan langsung dari browser ponsel.', 'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z'],
+                        ['title' => 'Riwayat pemeliharaan', 'desc' => 'Setiap laporan masuk ke catatan pemeliharaan aset agar penanganan tidak terlewat.', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
+                        ['title' => 'Survei fasilitas', 'desc' => 'Kumpulkan umpan balik layanan kampus melalui survei dinamis yang dapat diisi anonim.', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-6 4h6m-6-4h.01'],
+                        ['title' => 'Branding institusi', 'desc' => 'Identitas visual mengikuti pengaturan resmi institusi, konsisten di seluruh halaman publik.', 'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'],
+                    ];
+                @endphp
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    @foreach($features as $feature)
+                        <div class="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-5 transition hover:border-brand-200 hover:bg-white hover:shadow-card">
+                            <span class="grid h-10 w-10 place-items-center rounded-xl bg-white text-brand-700 shadow-sm ring-1 ring-slate-200/70">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $feature['icon'] }}"/></svg>
+                            </span>
+                            <h3 class="mt-3.5 text-sm font-extrabold text-slate-900">{{ $feature['title'] }}</h3>
+                            <p class="mt-1.5 text-[13px] leading-relaxed text-slate-600">{{ $feature['desc'] }}</p>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- ======================= FOOTER ======================= --}}
-    <footer class="bg-[#0C1330] text-gray-400">
-        <div class="max-w-6xl mx-auto px-4 py-12 grid md:grid-cols-3 gap-10">
-            <div>
-                <div class="flex items-center gap-3">
-                    <img src="{{ $appSettings->getLogoUrl() }}" alt="{{ $appSettings->getAppName() }}" class="h-10 w-10 object-contain">
-                    <div>
-                        <p class="text-lg font-extrabold text-white leading-tight tracking-wide">{{ $appSettings->getAppName() }}</p>
-                        <p class="text-[11px] font-semibold uppercase tracking-widest">{{ $appSettings->getInstitutionName() }}</p>
+    {{-- ======================= FAQ ======================= --}}
+    <section id="faq" class="scroll-mt-24 py-16 sm:py-20 lg:py-24">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-brand-600">Pertanyaan umum</p>
+                <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Hal yang sering ditanyakan</h2>
+            </div>
+
+            @php
+                $faqs = [
+                    ['q' => 'Bagaimana cara mengetahui kode aset saya?', 'a' => 'Kode aset tercetak pada stiker QR yang menempel di badan aset, dan juga tercantum pada dokumen inventaris unit Anda. Formatnya seperti UNMARIS/IT/2026/001.'],
+                    ['q' => 'Apakah data aset bisa diakses publik?', 'a' => 'Halaman publik hanya menampilkan informasi identitas aset yang diperlukan untuk verifikasi: nama, kategori, kondisi, status, lokasi, dan penanggung jawab. Data sensitif tetap berada di panel administrasi.'],
+                    ['q' => 'Siapa yang dapat mengirim laporan kerusakan?', 'a' => 'Siapa saja — mahasiswa, dosen, staf, maupun tamu. Laporan dapat dikirim secara anonim, dan sistem mencatat alamat IP untuk mencegah penyalahgunaan.'],
+                    ['q' => 'Apakah saya perlu membuat akun?', 'a' => 'Tidak. Seluruh layanan publik seperti cek aset, verifikasi QR, pelaporan kerusakan, dan pengisian survei dapat digunakan tanpa login.'],
+                    ['q' => 'Mengapa saya tidak bisa mengisi survei dua kali?', 'a' => 'Untuk menjaga validitas data, sistem membatasi satu pengisian per alamat IP dan menyimpan penanda pada browser Anda.'],
+                ];
+            @endphp
+
+            <div class="mt-10 space-y-3">
+                @foreach($faqs as $faq)
+                    <details class="group rounded-2xl border border-slate-200/80 bg-white px-5 py-4 shadow-card open:border-brand-200 sm:px-6">
+                        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-extrabold text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">
+                            {{ $faq['q'] }}
+                            <span class="grid h-7 w-7 flex-none place-items-center rounded-full bg-slate-100 text-slate-500 transition group-open:rotate-45 group-open:bg-brand-800 group-open:text-white" aria-hidden="true">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            </span>
+                        </summary>
+                        <p class="mt-3 pr-11 text-sm leading-relaxed text-slate-600">{{ $faq['a'] }}</p>
+                    </details>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ======================= CTA ======================= --}}
+    <section class="pb-16 sm:pb-20 lg:pb-24">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="relative overflow-hidden rounded-3xl bg-brand-900 px-6 py-12 text-center shadow-soft sm:px-12 sm:py-16">
+                <div class="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-accent-400/10 blur-3xl" aria-hidden="true"></div>
+                <div class="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-brand-500/30 blur-3xl" aria-hidden="true"></div>
+                <div class="relative mx-auto max-w-2xl">
+                    <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Pastikan aset kampus dalam kondisi terbaik</h2>
+                    <p class="mt-4 text-base leading-relaxed text-brand-100/85">Satu laporan Anda membantu tim Sarpras menindaklanjuti lebih cepat. Mulai dari memeriksa kode aset hari ini.</p>
+                    <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                        <a href="{{ route('asset.check') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-400 px-6 py-3.5 text-sm font-extrabold text-brand-950 shadow-lg shadow-accent-500/20 transition hover:bg-accent-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-900">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                            Cek Status Aset
+                        </a>
+                        <a href="{{ url('/admin/login') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-900">
+                            Masuk Portal Staf
+                        </a>
                     </div>
                 </div>
-                <p class="mt-4 text-sm leading-relaxed">Ekosistem digital terpadu untuk pengelolaan inventaris aset, verifikasi identitas, pelaporan kerusakan, dan survei kepuasan di lingkungan Universitas Stella Maris.</p>
-            </div>
-
-            <div>
-                <h3 class="text-white font-bold mb-4">Tautan Cepat</h3>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">Beranda</a></li>
-                    <li><a href="#alur-verifikasi" class="hover:text-white transition-colors">Alur Verifikasi Aset</a></li>
-                    <li><a href="#fitur" class="hover:text-white transition-colors">Fitur SIMA</a></li>
-                    <li><a href="#layanan" class="hover:text-white transition-colors">Layanan Publik</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3 class="text-white font-bold mb-4">Kontak</h3>
-                <ul class="space-y-2 text-sm">
-                    <li>Jl. Karya Kasih No. 5, Tambolaka</li>
-                    <li>Kab. Sumba Barat Daya</li>
-                    <li>Email: <a href="mailto:rektorat@unmaris.ac.id" class="hover:text-white transition-colors">rektorat@unmaris.ac.id</a></li>
-                    <li>Telp: (021) 1234567</li>
-                </ul>
             </div>
         </div>
-
-        <div class="border-t border-white/10">
-            <div class="max-w-6xl mx-auto px-4 py-5 text-center text-xs text-gray-500">
-                &copy; {{ date('Y') }} {{ $appSettings->getAppName() }} - Biro Sarpras {{ $appSettings->getInstitutionName() }}
-            </div>
-        </div>
-    </footer>
-
-</body>
-</html>
+    </section>
+@endsection
