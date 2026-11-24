@@ -74,7 +74,7 @@ class SurveyController extends Controller
         ]);
 
         // 4. KIRIM NOTIFIKASI REAL-TIME KE ADMIN
-        $admins = User::role(['Super Admin'])->get();
+        $admins = User::role(['super_admin'])->get();
         $reporterName = $request->input('responder_name') ?: 'Pengguna Anonim';
 
         Notification::make()

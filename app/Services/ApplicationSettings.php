@@ -95,25 +95,19 @@ class ApplicationSettings
     }
 
     /**
+     * Membangun URL logo mode gelap yang valid. Fallback ke logo utama/default.
+     */
+    public function getLogoDarkUrl(): string
+    {
+        return $this->resolveAssetUrl($this->getLogoDark());
+    }
+
+    /**
      * Membangun URL logo yang valid. Mengembalikan fallback default jika belum ada/valid.
      */
     public function getLogoUrl(): string
     {
-        $logo = $this->getLogo();
-
-        if ($logo) {
-            $path = ltrim((string) $logo, '/');
-
-            if ($path !== '' && file_exists(public_path($path))) {
-                return asset($path);
-            }
-
-            if ($path !== '' && file_exists(storage_path('app/public/'.$path))) {
-                return asset('storage/'.$path);
-            }
-        }
-
-        return asset('images/logo-unmaris.png');
+        return $this->resolveAssetUrl($this->getLogo());
     }
 
     /**
@@ -121,10 +115,17 @@ class ApplicationSettings
      */
     public function getFaviconUrl(): string
     {
-        $favicon = $this->getFavicon();
+        return $this->resolveAssetUrl($this->getFavicon());
+    }
 
-        if ($favicon) {
-            $path = ltrim((string) $favicon, '/');
+    /**
+     * Mengubah path penyimpanan logo/favicon menjadi URL publik yang dapat diakses.
+     * Mendukung file di public/ maupun storage/app/public/.
+     */
+    private function resolveAssetUrl(?string $path): string
+    {
+        if ($path) {
+            $path = ltrim($path, '/');
 
             if ($path !== '' && file_exists(public_path($path))) {
                 return asset($path);

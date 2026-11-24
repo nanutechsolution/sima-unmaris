@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Enums\NavigationGroupEnum;
 use App\Filament\Pages\Auth\EditProfile as AuthEditProfile;
+use App\Services\ApplicationSettings;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -15,7 +16,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -35,18 +35,20 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->profile(AuthEditProfile::class)
             ->colors([
-                'primary' => Color::Amber, // Biru Dongker Logo
-                'warning' => Color::hex('#1B1464'), // Kuning Emas Logo
+                // Primary memakai navy logo (#1B2A66) agar konsisten dengan halaman publik
+                // dan kontras teks putih pada tombol tetap aman dibaca.
+                'primary' => Color::hex('#1B2A66'),
+                'warning' => Color::Amber,
                 'success' => Color::Emerald,
                 'danger' => Color::Rose,
                 'info' => Color::Sky,
                 'gray' => Color::Slate,
-
             ])
-            // ->brandLogo(asset('images/logo-unmaris.png'))
-            // ->brandLogoHeight('2.5rem')
-            ->brandName('SIMA Stella Maris')
-            ->favicon(asset('images/logo-unmaris.png'))
+            ->brandName(fn (): string => app(ApplicationSettings::class)->getAppName())
+            ->brandLogo(fn (): string => app(ApplicationSettings::class)->getLogoUrl())
+            ->darkModeBrandLogo(fn (): string => app(ApplicationSettings::class)->getLogoDarkUrl())
+            ->brandLogoHeight('2.25rem')
+            ->favicon(fn (): string => app(ApplicationSettings::class)->getFaviconUrl())
             ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([

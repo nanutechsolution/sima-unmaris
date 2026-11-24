@@ -32,6 +32,10 @@ class OverdueLoansWidget extends BaseWidget
                     ->whereNull('actual_return_date')
                     ->where('expected_return_date', '<', now())
             )
+            ->stackedOnMobile()
+            ->emptyStateHeading('Tidak ada peminjaman terlambat')
+            ->emptyStateDescription('Semua peminjaman aset saat ini dikembalikan sesuai tenggat waktu.')
+            ->emptyStateIcon('heroicon-o-check-circle')
             ->columns([
                 Tables\Columns\TextColumn::make('asset.name')
                     ->label('Nama Aset')

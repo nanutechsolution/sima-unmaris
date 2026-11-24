@@ -60,21 +60,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     // --- FILAMENT AUTHORIZATION ---
     public function canAccessPanel(Panel $panel): bool
     {
-        $user = auth()->user();
-
-        // Tamu yang belum terautentikasi tidak boleh mengakses panel
-        if (! $user) {
-            return false;
-        }
-
-        // Hak akses diberikan berdasarkan peran (Super Admin, Staf Inventaris, & Auditor)
-        // Super Admin memiliki akses penuh tanpa batasan akses.
-        if ($user->hasRole('Super Admin')) {
+        // Hak akses diberikan berdasarkan peran (super_admin, staf_inventaris, & auditor).
+        // Nama role mengikuti data di database (snake_case), bukan label tampilan.
+        if ($this->hasRole('super_admin')) {
             return true;
         }
 
         // Staf Inventaris mengelola aset & inventaris, Auditor hanya membaca audit trail
-        return $user->hasRole(['Staf Inventaris', 'Auditor']);
+        return $this->hasRole(['staf_inventaris', 'auditor']);
     }
 
     public function getFilamentAvatarUrl(): ?string

@@ -26,8 +26,7 @@ class AssetStatsOverview extends BaseWidget
             Stat::make('Total Aset Kampus', $totalAssets)
                 ->description('Jumlah seluruh fisik aset yang terdaftar')
                 ->descriptionIcon('heroicon-m-cube')
-                ->color('primary')
-                ->chart([7, 2, 10, 3, 15, 4, 17]), // Sparkline pemanis UI
+                ->color('primary'),
 
             Stat::make('Total Valuasi Aset', 'Rp '.number_format($totalValue, 0, ',', '.'))
                 ->description('Total akumulasi nilai perolehan')
@@ -37,8 +36,7 @@ class AssetStatsOverview extends BaseWidget
             Stat::make('Aset Kondisi Rusak', $damagedAssets)
                 ->description('Membutuhkan perbaikan atau dipensiunkan')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color('danger')
-                ->chart([17, 16, 14, 15, 14, 13, 12]), // Sparkline trend perbaikan
+                ->color('danger'),
         ];
     }
 }

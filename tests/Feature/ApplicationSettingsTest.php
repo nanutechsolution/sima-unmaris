@@ -103,7 +103,7 @@ class ApplicationSettingsTest extends TestCase
     public function test_super_admin_can_access_branding_settings_page(): void
     {
         $user = User::factory()->create();
-        $user->assignRole(Role::create(['name' => 'Super Admin']));
+        $user->assignRole(Role::create(['name' => 'super_admin']));
 
         $this->actingAs($user);
 
@@ -118,7 +118,7 @@ class ApplicationSettingsTest extends TestCase
     public function test_branding_action_validates_uploaded_logo(): void
     {
         $user = User::factory()->create();
-        $user->assignRole(Role::create(['name' => 'Super Admin']));
+        $user->assignRole(Role::create(['name' => 'super_admin']));
         $this->actingAs($user);
 
         $component = Livewire::test(Settings::class);

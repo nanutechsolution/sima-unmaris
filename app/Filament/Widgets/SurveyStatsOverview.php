@@ -35,7 +35,6 @@ class SurveyStatsOverview extends BaseWidget
             Stat::make('Total Respon Masuk', $totalResponses)
                 ->description('Total suara mahasiswa & dosen')
                 ->descriptionIcon('heroicon-m-chat-bubble-left-right')
-                ->chart([7, 10, 5, 12, 18, 14, 25]) // Sparkline simulasi tren
                 ->color('success'),
 
             Stat::make('Survei Aktif', $activeSurveys)

@@ -18,9 +18,11 @@ class RolePermissionSeeder extends Seeder
         // ================================
         // 1. CREATE ROLES ONLY
         // ================================
-        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
-        $stafRole = Role::firstOrCreate(['name' => 'Staf Inventaris']);
-        $auditorRole = Role::firstOrCreate(['name' => 'Auditor']);
+        // Nama role wajib sama persis dengan yang tersimpan di database (snake_case)
+        // karena dipakai oleh canAccessPanel(), Gate::before, dan Filament Shield.
+        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
+        $stafRole = Role::firstOrCreate(['name' => 'staf_inventaris']);
+        $auditorRole = Role::firstOrCreate(['name' => 'auditor']);
 
         // ================================
         // 2. CREATE DEFAULT USERS
@@ -36,7 +38,7 @@ class RolePermissionSeeder extends Seeder
             ]
         );
 
-        if (! $admin->hasRole('Super Admin')) {
+        if (! $admin->hasRole('super_admin')) {
             $admin->assignRole($superAdminRole);
         }
 
@@ -50,7 +52,7 @@ class RolePermissionSeeder extends Seeder
             ]
         );
 
-        if (! $staf->hasRole('Staf Inventaris')) {
+        if (! $staf->hasRole('staf_inventaris')) {
             $staf->assignRole($stafRole);
         }
 

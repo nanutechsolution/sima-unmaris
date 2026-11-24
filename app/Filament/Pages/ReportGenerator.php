@@ -6,6 +6,7 @@ use App\Enums\NavigationGroupEnum;
 use App\Models\Asset;
 use App\Models\Location;
 use App\Models\Room;
+use App\Services\ApplicationSettings;
 use Barryvdh\DomPDF\Facade\Pdf;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
@@ -200,13 +201,22 @@ class ReportGenerator extends Page
                     if ($teksPeriode !== '') {
                         $htmlPeriode = '<br><span style="font-size: 11pt; font-weight: normal;">Periode Pembelian: '.$teksPeriode.'</span>';
                     }
-                    $pathLogo = public_path('images/logo-unmaris.png');
+                    $branding = app(ApplicationSettings::class);
+                    $logoPath = ltrim((string) $branding->getLogo(), '/');
+                    $absoluteLogoPath = public_path($logoPath);
+
+                    if (! file_exists($absoluteLogoPath)) {
+                        $absoluteLogoPath = storage_path('app/public/'.$logoPath);
+                    }
 
                     $logoBase64 = '';
-                    if (file_exists($pathLogo)) {
-                        $logoData = base64_encode(file_get_contents($pathLogo));
-                        $logoBase64 = 'data:image/png;base64,'.$logoData;
+                    if ($logoPath !== '' && file_exists($absoluteLogoPath)) {
+                        $mime = @mime_content_type($absoluteLogoPath) ?: 'image/png';
+                        $logoData = base64_encode(file_get_contents($absoluteLogoPath));
+                        $logoBase64 = 'data:'.$mime.';base64,'.$logoData;
                     }
+
+                    $institutionName = e($branding->getInstitutionName());
                     $html = '
                     <html>
                    <head>
@@ -238,7 +248,7 @@ class ReportGenerator extends Page
                                     '.($logoBase64 ? '<img src="'.$logoBase64.'" width="90">' : '').'
                                 </td>
                                 <td width="85%" class="kop-surat-teks">
-                                    <h1>UNIVERSITAS STELLA MARIS (UNMARIS)</h1>
+                                    <h1>'.strtoupper($institutionName).'</h1>
                                     <p>Jl. Karya Kasih No. 5, Tambolaka Kab. Sumba Barat Daya</p>
                                     <p>Email: rektorat@unmaris.ac.id | Telp: (021) 1234567</p>
                                 </td>

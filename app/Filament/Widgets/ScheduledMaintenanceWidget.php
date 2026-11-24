@@ -32,6 +32,10 @@ class ScheduledMaintenanceWidget extends BaseWidget
                     ->where('status', 'scheduled')
                     ->orderBy('maintenance_date', 'asc')
             )
+            ->stackedOnMobile()
+            ->emptyStateHeading('Tidak ada laporan menunggu tindakan')
+            ->emptyStateDescription('Semua laporan kerusakan telah ditindaklanjuti. Laporan baru dari publik akan muncul di sini.')
+            ->emptyStateIcon('heroicon-o-check-badge')
             ->columns([
                 Tables\Columns\TextColumn::make('maintenance_date')
                     ->label('Jadwal / Tanggal Lapor')

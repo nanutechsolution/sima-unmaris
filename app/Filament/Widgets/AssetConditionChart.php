@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\AssetConditionEnum;
 use App\Models\Asset;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
@@ -25,21 +26,40 @@ class AssetConditionChart extends ChartWidget
 
     protected function getData(): array
     {
-        // Menghitung jumlah aset berdasarkan enum kondisinya
-        $good = Asset::where('condition', 'good')->count();
-        $fair = Asset::where('condition', 'fair')->count();
-        $damaged = Asset::where('condition', 'damaged')->count();
+        // Ambil agregat seluruh kondisi sekaligus (lebih hemat query daripada count per kondisi).
+        $counts = Asset::query()
+            ->select('condition')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('condition')
+            ->pluck('total', 'condition');
+
+        $labels = [];
+        $data = [];
+        $colors = [];
+
+        // Tampilkan semua kondisi yang dikenal aplikasi, termasuk yang jumlahnya nol,
+        // agar legenda dan warna tetap konsisten dengan badge kondisi di tabel.
+        foreach (AssetConditionEnum::cases() as $condition) {
+            $labels[] = $condition->getLabel();
+            $data[] = (int) ($counts[$condition->value] ?? 0);
+            $colors[] = match ($condition->value) {
+                'good' => '#10b981',
+                'fair' => '#f59e0b',
+                'damaged' => '#ef4444',
+                'bad' => '#64748b',
+                default => '#94a3b8',
+            };
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Jumlah Aset',
-                    'data' => [$good, $fair, $damaged],
-                    // Warna disesuaikan dengan standar UI (Hijau, Kuning, Merah)
-                    'backgroundColor' => ['#10b981', '#f59e0b', '#ef4444'],
+                    'data' => $data,
+                    'backgroundColor' => $colors,
                 ],
             ],
-            'labels' => ['Kondisi Baik', 'Kurang Baik / Wajar', 'Kondisi Rusak'],
+            'labels' => $labels,
         ];
     }
 

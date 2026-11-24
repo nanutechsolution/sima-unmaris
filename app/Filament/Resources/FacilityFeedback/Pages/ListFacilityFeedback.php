@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\FacilityFeedback\Pages;
 
 use App\Filament\Resources\FacilityFeedback\FacilityFeedbackResource;
-use App\Filament\Resources\FacilityFeedback\Widgets\SurveyStatsOverview;
+use App\Filament\Widgets\SurveyStatsOverview;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 

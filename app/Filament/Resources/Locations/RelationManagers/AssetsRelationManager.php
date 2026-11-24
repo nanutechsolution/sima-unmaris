@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Locations\RelationManager;
+namespace App\Filament\Resources\Locations\RelationManagers;
 
 use App\Enums\AssetConditionEnum;
 use App\Enums\AssetStatusEnum;

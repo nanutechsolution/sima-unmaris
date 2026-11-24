@@ -99,7 +99,7 @@ class GlobalAuditTrail extends Page implements HasTable
                             ->size('xs')
                             ->alignEnd(),
                     ]),
-                ]),
+                ])->from('md'),
 
                 // 2. MENGGUNAKAN VIEW CUSTOM HTML YANG BISA DI-COLLAPSE
                 TableView::make('filament.tables.columns.audit-activity-detail')

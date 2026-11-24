@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
         // 2. (Opsional tapi Sangat Disarankan) Hak Istimewa Mutlak untuk Super Admin
         // Ini memastikan Super Admin selalu bisa melewati semua halangan (kecuali yang kita hardcode false di Policy)
         Gate::before(function ($user, $ability) {
-            return $user->hasRole('Super Admin') ? true : null;
+            return $user->hasRole('super_admin') ? true : null;
         });
 
         // 3. Reset password via email -> invalidate semua session aktif (logout dari semua device)

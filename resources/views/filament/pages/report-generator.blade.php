@@ -2,7 +2,7 @@
     <x-filament::section
         icon="heroicon-o-document-text"
         heading="Pusat Ekspor Laporan Kampus"
-        description="Cetak dokumen resmi untuk kebutuhan akreditasi BAN-PT atau audit keuangan Universitas Stella Maris."
+        description="Cetak dokumen resmi untuk kebutuhan akreditasi BAN-PT atau audit keuangan {{ $appSettings->getInstitutionName() }}."
     >
         <h3 class="font-bold mb-3 text-gray-800 dark:text-gray-200">Cara Penggunaan:</h3>
         

@@ -42,7 +42,7 @@ class Settings extends Page
             return false;
         }
 
-        return $user->hasRole('Super Admin');
+        return $user->hasRole('super_admin');
     }
 
     protected function getHeaderActions(): array

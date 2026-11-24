@@ -51,8 +51,8 @@ Route::post('/verify-asset/{signature}/report', function (Request $request, stri
         'notes' => 'Dilaporkan oleh: '.($request->reporter_name ?: 'Anonim').' | IP: '.$request->ip(),
     ]);
     // 3. KIRIM NOTIFIKASI REAL-TIME KE ADMIN & STAF
-    // Mengambil semua user yang memiliki role Super Admin atau Staf Operasional
-    $admins = User::role(['Super Admin', 'Staf Inventaris'])->get();
+    // Mengambil semua user yang memiliki role super_admin atau staf_inventaris
+    $admins = User::role(['super_admin', 'staf_inventaris'])->get();
 
     // Tembakkan notifikasi ke database
     Notification::make()

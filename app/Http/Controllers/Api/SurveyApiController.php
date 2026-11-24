@@ -153,7 +153,7 @@ class SurveyApiController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        $admins = User::role(['Super Admin'])->get();
+        $admins = User::role(['super_admin'])->get();
         Notification::make()
             ->title('📢 Respon Survei Baru')
             ->body("Respon masuk dari {$request->user()->name} untuk: {$survey->title}")
