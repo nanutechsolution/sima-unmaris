@@ -16,6 +16,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -45,8 +46,8 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Slate,
             ])
             ->brandName(fn (): string => app(ApplicationSettings::class)->getAppName())
-            ->brandLogo(fn (): string => app(ApplicationSettings::class)->getLogoUrl())
-            ->darkModeBrandLogo(fn (): string => app(ApplicationSettings::class)->getLogoDarkUrl())
+            ->brandLogo(fn (): Htmlable => view('filament.partials.brand-logo', ['dark' => false]))
+            ->darkModeBrandLogo(fn (): Htmlable => view('filament.partials.brand-logo', ['dark' => true]))
             ->brandLogoHeight('2.25rem')
             ->favicon(fn (): string => app(ApplicationSettings::class)->getFaviconUrl())
             ->databaseNotifications()

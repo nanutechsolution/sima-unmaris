@@ -121,6 +121,8 @@ class AdminPanelRenderTest extends TestCase
 
         $this->get('/admin')
             ->assertSee('SIMA UNMARIS')
-            ->assertSee('logo-unmaris.png');
+            ->assertSee('logo-unmaris.png')
+            ->assertSee('fi-admin-brand', false)
+            ->assertSee('fi-admin-brand-name', false);
     }
 }
